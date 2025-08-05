@@ -1,8 +1,8 @@
 from flappybird.bird import Bird
 class Game():
-    def __init__(self):
+    def __init__(self, surface):
         self.bird = Bird()
+        self.surface = surface
 
-    def upadate(self, surface):
-        # Placeholder for drawing the game state
-        pass
+    def update(self):
+        self.bird.draw(self.surface)
