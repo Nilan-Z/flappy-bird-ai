@@ -6,7 +6,7 @@ class Pipe():
         self.pipe_image = pygame.image.load("assets/sprites/pipe-green.png").convert_alpha()
         self.flipped_pipe = pygame.transform.flip(self.pipe_image, False, True)
         self.gap = 120
-        self.velocity = 3
+        self.velocity = 2
         self.x = x
         self.set_height()
 
