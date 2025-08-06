@@ -22,3 +22,6 @@ class Bird():
         if self.frame == 6:
             self.frame = 0
             self.current_sprite = (self.current_sprite + 1) % len(self.sprites)
+
+    def get_rect(self):
+        return pygame.Rect(self.x, self.y, self.sprites[self.current_sprite].get_width(), self.sprites[self.current_sprite].get_height())
