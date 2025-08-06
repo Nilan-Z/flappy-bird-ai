@@ -21,3 +21,8 @@ class Pipe():
     def draw(self, surface):
         surface.blit(self.flipped_pipe, (self.x, self.top_y))
         surface.blit(self.pipe_image, (self.x, self.bottom_y))
+
+    def get_rects(self):
+        top_rect = pygame.Rect(self.x, self.top_y, self.pipe_image.get_width(), self.pipe_image.get_height())
+        bottom_rect = pygame.Rect(self.x, self.bottom_y, self.pipe_image.get_width(), self.pipe_image.get_height())
+        return top_rect, bottom_rect
