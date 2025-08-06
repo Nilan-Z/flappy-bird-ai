@@ -8,6 +8,8 @@ class Pipe():
         self.gap = 120
         self.velocity = 2
         self.x = x
+        self.passed = False
+        self.width = self.pipe_image.get_width()
         self.set_height()
 
     def set_height(self):
