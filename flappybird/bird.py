@@ -3,7 +3,7 @@ import pygame
 class Bird():
     def __init__(self):
         # Initialize bird properties
-        self.sprites = [
+        self.sprites = [      
             pygame.image.load("assets/sprites/redbird-upflap.png").convert_alpha(),
             pygame.image.load("assets/sprites/redbird-midflap.png").convert_alpha(),
             pygame.image.load("assets/sprites/redbird-downflap.png").convert_alpha()
