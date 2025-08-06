@@ -1,6 +1,7 @@
 import pygame
 from flappybird.bird import Bird
 from flappybird.pipe import Pipe
+from flappybird.score import Score
 
 class Game:
     def __init__(self, surface):
@@ -9,6 +10,7 @@ class Game:
         self.screen_height = surface.get_height()
 
         self.bird = Bird()
+
         self.pipes = []
         self.spawn_timer = 0
 
@@ -19,6 +21,9 @@ class Game:
 
         self.background = pygame.image.load("assets/sprites/background-day.png").convert()
         self.game_over_image = pygame.image.load("assets/sprites/gameover.png").convert_alpha()
+
+        self.score = Score()
+        self.score_value = 0
 
         self.waiting_to_start = True
         self.game_over = False
@@ -32,7 +37,9 @@ class Game:
         if self.waiting_to_start:
             self.bird.gravity = 0
             self.bird.draw(self.surface)
+            self.update_base()
             self.draw_base()
+            self.score.draw(self.surface, self.score_value, self.screen_width // 2, 50)
             return
 
         if self.game_over:
@@ -42,17 +49,17 @@ class Game:
             self.draw_game_over()
             return
 
-        self.bird.draw(self.surface)
-
         self.spawn_timer += 1
         if self.spawn_timer >= 90:
             self.spawn_pipe()
             self.spawn_timer = 0
 
+        self.bird.draw(self.surface)
         self.update_pipes()
         self.draw_pipes()
         self.update_base()
         self.draw_base()
+        self.score.draw(self.surface, self.score_value, self.screen_width // 2, 50)
 
         if self.check_collision():
             self.game_over = True
@@ -61,7 +68,10 @@ class Game:
     def update_pipes(self):
         for pipe in self.pipes:
             pipe.update()
-        self.pipes = [pipe for pipe in self.pipes if pipe.x + pipe.pipe_image.get_width() > 0]
+            if not pipe.passed and pipe.x + pipe.width < self.bird.x:
+                pipe.passed = True
+                self.score_value += 1
+        self.pipes = [pipe for pipe in self.pipes if pipe.x + pipe.width > 0]
 
     def draw_pipes(self):
         for pipe in self.pipes:
