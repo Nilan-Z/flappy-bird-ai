@@ -58,6 +58,7 @@ class Game:
             self.draw_pipes()
             self.draw_base()
             self.draw_game_over()
+            self.score.draw(self.surface, self.current_score, self.screen_width // 2, self.screen_height // 2)
             return
 
         self.pipe_spawn_timer += 1
