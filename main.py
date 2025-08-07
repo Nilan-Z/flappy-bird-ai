@@ -24,8 +24,10 @@ def handle_input():
                 game.waiting_to_start = False
                 game.bird.gravity = 0.25
                 game.bird.jump()
+                game.sfx_jump.play()
             else:
                 game.bird.jump()
+                game.sfx_jump.play()
 
 def main_loop():
     while True:
