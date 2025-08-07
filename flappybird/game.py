@@ -10,20 +10,31 @@ class Game:
         self.screen_height = surface.get_height()
 
         self.bird = Bird()
-
         self.pipes = []
-        self.spawn_timer = 0
+        self.pipe_spawn_timer = 60
 
-        self.base = pygame.image.load("assets/sprites/base.png").convert_alpha()
-        self.base_scroll_speed = 2
-        self.base_width = self.base.get_width()
+        self.base_sprite = pygame.image.load("assets/sprites/base.png").convert_alpha()
+        self.base_scroll_speed = 3
+        self.base_width = self.base_sprite.get_width()
         self.base_x = 0
+        self.base_y = self.screen_height - self.base_sprite.get_height() + 20
 
-        self.background = pygame.image.load("assets/sprites/background-day.png").convert()
-        self.game_over_image = pygame.image.load("assets/sprites/gameover.png").convert_alpha()
+        self.bg_original = pygame.image.load("assets/sprites/background-day.png").convert()
+        self.bg_scaled_height = int(self.screen_height * 1.2)
+        self.background = pygame.transform.scale(self.bg_original, (self.screen_width, self.bg_scaled_height))
+
+        self.game_over_sprite = pygame.image.load("assets/sprites/gameover.png").convert_alpha()
+
+        self.get_ready_original = pygame.image.load("assets/sprites/message.png").convert_alpha()
+        self.get_ready_width = self.get_ready_original.get_width()
+        self.get_ready_height = self.get_ready_original.get_height()
+        self.get_ready_sprite = pygame.transform.scale(
+            self.get_ready_original,
+            (int(self.get_ready_width * 1.4), int(self.get_ready_height * 1.4))
+        )
 
         self.score = Score()
-        self.score_value = 0
+        self.current_score = 0
 
         self.waiting_to_start = True
         self.game_over = False
@@ -39,7 +50,7 @@ class Game:
             self.bird.draw(self.surface)
             self.update_base()
             self.draw_base()
-            self.score.draw(self.surface, self.score_value, self.screen_width // 2, 50)
+            self.draw_get_ready()
             return
 
         if self.game_over:
@@ -47,19 +58,20 @@ class Game:
             self.draw_pipes()
             self.draw_base()
             self.draw_game_over()
+            self.score.draw(self.surface, self.current_score, self.screen_width // 2, self.screen_height // 2)
             return
 
-        self.spawn_timer += 1
-        if self.spawn_timer >= 90:
+        self.pipe_spawn_timer += 1
+        if self.pipe_spawn_timer >= 80:
             self.spawn_pipe()
-            self.spawn_timer = 0
+            self.pipe_spawn_timer = 0
 
         self.bird.draw(self.surface)
         self.update_pipes()
         self.draw_pipes()
         self.update_base()
         self.draw_base()
-        self.score.draw(self.surface, self.score_value, self.screen_width // 2, 50)
+        self.score.draw(self.surface, self.current_score, self.screen_width // 2, 30)
 
         if self.check_collision():
             self.game_over = True
@@ -70,7 +82,7 @@ class Game:
             pipe.update()
             if not pipe.passed and pipe.x + pipe.width < self.bird.x:
                 pipe.passed = True
-                self.score_value += 1
+                self.current_score += 1
         self.pipes = [pipe for pipe in self.pipes if pipe.x + pipe.width > 0]
 
     def draw_pipes(self):
@@ -83,28 +95,29 @@ class Game:
             self.base_x = 0
 
     def draw_base(self):
-        base_y = self.screen_height - self.base.get_height() / 1.7
-        self.surface.blit(self.base, (self.base_x, base_y))
-        self.surface.blit(self.base, (self.base_x + self.base_width, base_y))
+        self.surface.blit(self.base_sprite, (self.base_x, self.base_y))
+        self.surface.blit(self.base_sprite, (self.base_x + self.base_width, self.base_y))
+        self.surface.blit(self.base_sprite, (self.base_x + self.base_width * 2, self.base_y))
 
     def draw_background(self):
-        self.surface.blit(self.background, (0, 0))
+        self.surface.blit(self.background, (0, -60))
 
     def draw_game_over(self):
-        x = (self.screen_width - self.game_over_image.get_width()) // 2
-        y = (self.screen_height - self.game_over_image.get_height()) // 4
-        self.surface.blit(self.game_over_image, (x, y))
+        x = (self.screen_width - self.game_over_sprite.get_width()) // 2
+        y = (self.screen_height - self.game_over_sprite.get_height()) // 4
+        self.surface.blit(self.game_over_sprite, (x, y))
 
     def check_collision(self):
         bird_rect = self.bird.get_rect()
-        base_y = self.screen_height - self.base.get_height() / 1.7
-
-        if bird_rect.bottom >= base_y:
+        if bird_rect.bottom >= self.base_y:
             return True
-
         for pipe in self.pipes:
             top_rect, bottom_rect = pipe.get_rects()
             if bird_rect.colliderect(top_rect) or bird_rect.colliderect(bottom_rect):
                 return True
-
         return False
+
+    def draw_get_ready(self):
+        x = (self.screen_width - self.get_ready_sprite.get_width()) // 2
+        y = self.screen_height // 8
+        self.surface.blit(self.get_ready_sprite, (x, y))
