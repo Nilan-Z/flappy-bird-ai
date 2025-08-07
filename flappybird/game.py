@@ -39,6 +39,11 @@ class Game:
         self.waiting_to_start = True
         self.game_over = False
 
+        self.sfx_die = pygame.mixer.Sound("assets/audio/die.wav")
+        self.played_die_sound = False
+        self.sfx_jump = pygame.mixer.Sound("assets/audio/wing.wav")
+        self.sfx_point = pygame.mixer.Sound("assets/audio/point.wav")
+
     def spawn_pipe(self):
         self.pipes.append(Pipe(x=self.screen_width))
 
@@ -58,6 +63,9 @@ class Game:
             self.draw_pipes()
             self.draw_base()
             self.draw_game_over()
+            if not self.played_die_sound:
+                self.sfx_die.play()
+                self.played_die_sound = True
             self.score.draw(self.surface, self.current_score, self.screen_width // 2, self.screen_height // 2)
             return
 
@@ -80,9 +88,10 @@ class Game:
     def update_pipes(self):
         for pipe in self.pipes:
             pipe.update()
-            if not pipe.passed and pipe.x + pipe.width < self.bird.x:
+            if not pipe.passed and pipe.x + (pipe.width / 4) < self.bird.x:
                 pipe.passed = True
                 self.current_score += 1
+                self.sfx_point.play()
         self.pipes = [pipe for pipe in self.pipes if pipe.x + pipe.width > 0]
 
     def draw_pipes(self):
