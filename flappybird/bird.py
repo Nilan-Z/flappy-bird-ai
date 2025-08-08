@@ -1,12 +1,28 @@
 import pygame
+import random
 
 class Bird:
     def __init__(self):
-        base_sprites = [
-            pygame.image.load("assets/sprites/redbird-upflap.png").convert_alpha(),
-            pygame.image.load("assets/sprites/redbird-midflap.png").convert_alpha(),
-            pygame.image.load("assets/sprites/redbird-downflap.png").convert_alpha()
-        ]
+
+        self.sprites_color = random.choice(["red", "blue", "yellow"])
+        if self.sprites_color == "red":
+            base_sprites = [
+                pygame.image.load("assets/sprites/redbird-upflap.png").convert_alpha(),
+                pygame.image.load("assets/sprites/redbird-midflap.png").convert_alpha(),
+                pygame.image.load("assets/sprites/redbird-downflap.png").convert_alpha()
+            ]
+        elif self.sprites_color == "blue":
+            base_sprites = [
+                pygame.image.load("assets/sprites/bluebird-upflap.png").convert_alpha(),
+                pygame.image.load("assets/sprites/bluebird-midflap.png").convert_alpha(),
+                pygame.image.load("assets/sprites/bluebird-downflap.png").convert_alpha()
+            ]
+        else:
+            base_sprites = [
+                pygame.image.load("assets/sprites/yellowbird-upflap.png").convert_alpha(),
+                pygame.image.load("assets/sprites/yellowbird-midflap.png").convert_alpha(),
+                pygame.image.load("assets/sprites/yellowbird-downflap.png").convert_alpha()
+            ]
 
         self.sprites = []
         for sprite in base_sprites:
