@@ -1,4 +1,5 @@
 import pygame
+import json
 from flappybird.bird import Bird
 from flappybird.pipe import Pipe
 from flappybird.score import Score
@@ -35,6 +36,7 @@ class Game:
 
         self.score = Score()
         self.current_score = 0
+        self.best_score = self.load_best_score()
 
         self.waiting_to_start = True
         self.game_over = False
@@ -43,6 +45,18 @@ class Game:
         self.played_die_sound = False
         self.sfx_jump = pygame.mixer.Sound("assets/audio/wing.wav")
         self.sfx_point = pygame.mixer.Sound("assets/audio/point.wav")
+
+    def load_best_score(self):
+        try:
+            with open("flappybird/score.json", "r") as f:
+                data = json.load(f)
+                return data.get("best_score", 0)
+        except:
+            return 0
+
+    def save_best_score(self):
+        with open("flappybird/score.json", "w") as f:
+            json.dump({"best_score": self.best_score}, f)
 
     def spawn_pipe(self):
         self.pipes.append(Pipe(x=self.screen_width))
@@ -64,6 +78,9 @@ class Game:
             self.draw_pipes()
             self.draw_base()
             self.draw_game_over()
+            if self.current_score > self.best_score:
+                self.best_score = self.current_score
+                self.save_best_score()
             if not self.played_die_sound:
                 self.sfx_die.play()
                 self.played_die_sound = True
