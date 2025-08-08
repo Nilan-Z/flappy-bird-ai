@@ -51,7 +51,6 @@ class Game:
         self.draw_background()
 
         if self.waiting_to_start:
-            self.bird.gravity = 0
             self.bird.draw(self.surface)
             self.update_base()
             self.draw_base()
@@ -59,6 +58,8 @@ class Game:
             return
 
         if self.game_over:
+            self.check_collision()
+            self.bird.update()
             self.bird.draw(self.surface)
             self.draw_pipes()
             self.draw_base()
@@ -84,6 +85,7 @@ class Game:
         if self.check_collision():
             self.game_over = True
             self.bird.velocity = 0
+            
 
     def update_pipes(self):
         for pipe in self.pipes:
@@ -119,6 +121,7 @@ class Game:
     def check_collision(self):
         bird_rect = self.bird.get_rect()
         if bird_rect.bottom >= self.base_y:
+            self.bird.velocity = -0.6
             return True
         for pipe in self.pipes:
             top_rect, bottom_rect = pipe.get_rects()

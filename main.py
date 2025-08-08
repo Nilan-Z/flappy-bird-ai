@@ -22,7 +22,6 @@ def handle_input():
         if (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE) or event.type == pygame.MOUSEBUTTONDOWN:
             if game.waiting_to_start:
                 game.waiting_to_start = False
-                game.bird.gravity = 0.25
                 game.bird.jump()
                 game.sfx_jump.play()
             else:
