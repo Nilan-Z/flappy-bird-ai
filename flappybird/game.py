@@ -5,7 +5,21 @@ from flappybird.pipe import Pipe
 from flappybird.score import Score
 
 class Game:
+    """
+    Main game class handling the Flappy Bird gameplay mechanics,
+    rendering, and game state management.
+    """
+
     def __init__(self, surface):
+        """
+        Initialize the game with the display surface.
+
+        Loads necessary assets, initializes the bird, pipes, score,
+        and game state flags.
+
+        Args:
+            surface (pygame.Surface): The main display surface for rendering.
+        """
         self.surface = surface
         self.screen_width = surface.get_width()
         self.screen_height = surface.get_height()
@@ -47,6 +61,12 @@ class Game:
         self.sfx_point = pygame.mixer.Sound("assets/audio/point.wav")
 
     def load_best_score(self):
+        """
+        Load the best score from a JSON file.
+
+        Returns:
+            int: The best recorded score or 0 if file is missing or corrupted.
+        """
         try:
             with open("flappybird/score.json", "r") as f:
                 data = json.load(f)
@@ -55,17 +75,31 @@ class Game:
             return 0
 
     def save_best_score(self):
+        """
+        Save the current best score to a JSON file.
+        """
         with open("flappybird/score.json", "w") as f:
             json.dump({"best_score": self.best_score}, f)
 
     def spawn_pipe(self):
+        """
+        Create and append a new Pipe object at the right edge of the screen.
+        """
         self.pipes.append(Pipe(x=self.screen_width))
 
     def update(self):
+        """
+        Update the game state and render the current frame.
+
+        Handles game phases including waiting to start, gameplay, and game over.
+        Manages pipe spawning, bird and pipe updates, collision detection,
+        and score updates.
+        """
         self.draw_background()
 
         if self.waiting_to_start:
-            self.bird.draw(self.surface)
+            self.bird.jump()
+            self.draw_get_ready()
             self.update_base()
             self.draw_base()
             self.draw_get_ready()
@@ -102,9 +136,12 @@ class Game:
         if self.check_collision():
             self.game_over = True
             self.bird.velocity = 0
-            
 
     def update_pipes(self):
+        """
+        Update positions of all pipes, check for passing events to increase score,
+        and remove pipes that have moved off-screen.
+        """
         for pipe in self.pipes:
             pipe.update()
             if not pipe.passed and pipe.x + (pipe.width / 4) < self.bird.x:
@@ -114,28 +151,49 @@ class Game:
         self.pipes = [pipe for pipe in self.pipes if pipe.x + pipe.width > 0]
 
     def draw_pipes(self):
+        """
+        Draw all pipes on the current surface.
+        """
         for pipe in self.pipes:
             pipe.draw(self.surface)
 
     def update_base(self):
+        """
+        Update the horizontal scrolling position of the base (ground).
+        """
         self.base_x -= self.base_scroll_speed
         if self.base_x <= -self.base_width:
             self.base_x = 0
 
     def draw_base(self):
+        """
+        Render the base sprite multiple times to fill the width of the screen.
+        """
         self.surface.blit(self.base_sprite, (self.base_x, self.base_y))
         self.surface.blit(self.base_sprite, (self.base_x + self.base_width, self.base_y))
         self.surface.blit(self.base_sprite, (self.base_x + self.base_width * 2, self.base_y))
 
     def draw_background(self):
+        """
+        Render the background image onto the surface, slightly offset vertically.
+        """
         self.surface.blit(self.background, (0, -60))
 
     def draw_game_over(self):
+        """
+        Draw the game over sprite centered horizontally near the top quarter of the screen.
+        """
         x = (self.screen_width - self.game_over_sprite.get_width()) // 2
         y = (self.screen_height - self.game_over_sprite.get_height()) // 4
         self.surface.blit(self.game_over_sprite, (x, y))
 
     def check_collision(self):
+        """
+        Check if the bird collides with the base or any pipes.
+
+        Returns:
+            bool: True if collision detected, False otherwise.
+        """
         bird_rect = self.bird.get_rect()
         if bird_rect.bottom >= self.base_y:
             self.bird.velocity = -0.6
@@ -147,6 +205,10 @@ class Game:
         return False
 
     def draw_get_ready(self):
+        """
+        Draw the "Get Ready" message sprite centered horizontally
+        near the top eighth of the screen.
+        """
         x = (self.screen_width - self.get_ready_sprite.get_width()) // 2
         y = self.screen_height // 8
         self.surface.blit(self.get_ready_sprite, (x, y))
