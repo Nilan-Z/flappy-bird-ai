@@ -2,6 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
+A simple and customizable AI project for Flappy Bird in Python, using Deep Q-Learning (DQN) with TensorFlow.
+
 ## 📚 Table of Contents
 
 ## 🛠️ Installation
