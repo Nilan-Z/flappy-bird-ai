@@ -11,7 +11,7 @@ window = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Flappy Bird AI")
 pygame.display.set_icon(pygame.image.load("assets/sprites/yellowbird-upflap.png").convert_alpha())
 
-game = Game(window)
+game = Game(window, "human")
 clock = pygame.time.Clock()
 
 
