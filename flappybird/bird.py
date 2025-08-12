@@ -125,3 +125,15 @@ class Bird:
         """
         sprite = self.sprites[self.current_sprite_index]
         return pygame.Rect(self.x, self.y, sprite.get_width(), sprite.get_height())
+    
+    def reset(self):
+        """
+        Resets the bird's position, velocity, angle, and animation state to initial values.
+        """
+        self.x = 100
+        self.y = 235
+        self.velocity = 0
+        self.angle = 0
+        self.current_sprite_index = 0
+        self.animation_frame = 0
+        self.gravity = self.normal_gravity
