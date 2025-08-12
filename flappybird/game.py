@@ -98,15 +98,14 @@ class Game:
         and score updates.
         """
         self.draw_background()
-
-        if self.waiting_to_start:
-            self.bird.jump()
-            if self.user == "human":
+        if self.user == "human":
+            if self.waiting_to_start:
+                self.bird.jump()
                 self.draw_get_ready()
-            self.bird.draw(self.surface)
-            self.update_base()
-            self.draw_base()
-            return
+                self.bird.draw(self.surface)
+                self.update_base()
+                self.draw_base()
+                return
 
         if self.game_over:
             self.check_collision()
