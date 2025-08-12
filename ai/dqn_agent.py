@@ -25,7 +25,7 @@ class DQNAgent:
             layers.Dense(64, activation='relu'),
             layers.Dense(self.action_size, activation='linear')
         ])
-        model.compile(loss='mse', optimizer=tf.keras.optimizers.Adam(lr=0.001))
+        model.compile(loss='mse', optimizer=tf.keras.optimizers.Adam(learning_rate=0.001))
         return model
 
     def update_target_model(self):
