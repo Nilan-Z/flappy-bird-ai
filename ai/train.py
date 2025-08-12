@@ -1,16 +1,16 @@
 import numpy as np
 from ai.flappybird_env import FlappyBirdEnv
 from ai.dqn_agent import DQNAgent
+import pygame
 
 def train(episodes=500):
     env = FlappyBirdEnv()
-    state_size = 5 
+    state_size = 5
     action_size = 2
     agent = DQNAgent(state_size, action_size)
 
     for e in range(episodes):
-        state = env.reset()
-        state = np.array(state, dtype=np.float32)
+        state = np.array(env.reset(), dtype=np.float32)
         total_reward = 0
         done = False
         step = 0
@@ -25,13 +25,14 @@ def train(episodes=500):
             state = next_state
             total_reward += reward
             step += 1
+            pygame.time.delay(15)
 
             if done:
                 agent.update_target_model()
-                print(f"Episode {e+1}/{episodes}, Score: {env.game.current_score}, Total reward: {total_reward:.2f}, Epsilon: {agent.epsilon:.2f}, Steps: {step}")
+                print(f"Episode {e+1}/{episodes} | Score: {env.game.current_score} | Reward: {total_reward:.2f} | Epsilon: {agent.epsilon:.2f} | Steps: {step}")
                 break
 
     env.close()
 
 if __name__ == "__main__":
-    train()
+    train(episodes=500)
