@@ -10,7 +10,7 @@ class Game:
     rendering, and game state management.
     """
 
-    def __init__(self, surface):
+    def __init__(self, surface, user):
         """
         Initialize the game with the display surface.
 
@@ -60,6 +60,8 @@ class Game:
         self.sfx_jump = pygame.mixer.Sound("assets/audio/wing.wav")
         self.sfx_point = pygame.mixer.Sound("assets/audio/point.wav")
 
+        self.user = user
+
     def load_best_score(self):
         """
         Load the best score from a JSON file.
@@ -99,10 +101,11 @@ class Game:
 
         if self.waiting_to_start:
             self.bird.jump()
-            self.draw_get_ready()
+            if self.user == "human":
+                self.draw_get_ready()
+            self.bird.draw(self.surface)
             self.update_base()
             self.draw_base()
-            self.draw_get_ready()
             return
 
         if self.game_over:
@@ -212,3 +215,15 @@ class Game:
         x = (self.screen_width - self.get_ready_sprite.get_width()) // 2
         y = self.screen_height // 8
         self.surface.blit(self.get_ready_sprite, (x, y))
+
+    def reset(self):
+        """
+        Reset the game state to start a new game.
+
+        Resets the bird, pipes, score, and game state flags.
+        """
+        self.bird.reset()
+        self.pipes.clear()
+        self.current_score = 0
+        self.game_over = False
+        self.played_die_sound = False
