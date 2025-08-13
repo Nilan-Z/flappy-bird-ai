@@ -159,7 +159,7 @@ class Game:
         if self.check_collision():
             self.game_over = True
             self.bird.velocity = 0
-            return -1.0, True
+            return -10, True
 
         return 0.1, False
 
