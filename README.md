@@ -28,6 +28,28 @@ pip install -r requirements.txt
 
 ---
 
+## ▶️ Usage
+
+After configuring `config.yaml`, run the game with:
+
+```bash
+python main.py <user>
+```
+
+`<user>` can be either:
+
+- `human` — to play manually
+- `ai` — to let the AI play
+
+If you want to train the AI, use:
+
+```bash
+python main.py ai --train
+```
+
+
+---
+
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
