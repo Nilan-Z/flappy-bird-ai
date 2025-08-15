@@ -3,12 +3,15 @@
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A simple and customizable AI project for Flappy Bird in Python, using Deep Q-Learning (DQN) with TensorFlow.
+An AI-powered version of Flappy Bird written in Python with **Pygame** for graphics and **Deep Q-Learning (DQN)** for training the bird to play autonomously.  
+Includes manual gameplay mode, AI inference mode, and full training pipeline with TensorFlow/Keras.
 
 ## 📚 Table of Contents
 
 - Installation
+- Usage
 - License
+
 
 ---
 
@@ -17,7 +20,7 @@ A simple and customizable AI project for Flappy Bird in Python, using Deep Q-Lea
 Clone the repository:
 ```bash
 git clone https://github.com/Nilan-Z/flappy-bird-ai.git
-cd procedural-maze-generator
+cd flappy-bird-ai
 ```
 
 Install dependencies:
@@ -36,12 +39,12 @@ After configuring `config.yaml`, run the game with:
 python main.py <user>
 ```
 
-`<user>` can be either:
+`<user>` can be:
 
 - `human` — to play manually
 - `ai` — to let the AI play
 
-If you want to train the AI, use:
+To train the AI, use:
 
 ```bash
 python main.py ai --train
