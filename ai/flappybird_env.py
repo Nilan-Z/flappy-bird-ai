@@ -1,6 +1,9 @@
 import pygame
+import yaml
 from flappybird.game import Game
-from main import SCREEN_WIDTH, SCREEN_HEIGHT
+
+
+
 
 class FlappyBirdEnv:
     """
@@ -14,6 +17,12 @@ class FlappyBirdEnv:
         Args:
             mode (str): "ai" for AI control, "human" for manual keyboard control.
         """
+        with open("config.yaml", "r") as f:
+            config = yaml.safe_load(f)
+
+        SCREEN_WIDTH = config["screen_width"]
+        SCREEN_HEIGHT = config["screen_height"]
+
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Flappy Bird")
@@ -25,6 +34,8 @@ class FlappyBirdEnv:
         # Direct references for faster access
         self.bird = self.game.bird
         self.pipes = self.game.pipes
+
+    
 
     def reset(self):
         """

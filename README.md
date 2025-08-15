@@ -47,7 +47,6 @@ If you want to train the AI, use:
 python main.py ai --train
 ```
 
-
 ---
 
 ## 📄 License
