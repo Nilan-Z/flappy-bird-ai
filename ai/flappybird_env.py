@@ -1,106 +1,130 @@
-import pygame
+import os
 import yaml
+import pygame
+from typing import List, Tuple, Dict
 from flappybird.game import Game
 
 
-
-
 class FlappyBirdEnv:
-    """
-    Flappy Bird environment for AI training or human play.
-    Provides Gym-style methods: reset(), step(), render().
-    """
-    def __init__(self, mode="ai"):
+    def __init__(self, mode: str = "ai", headless: bool = False):
         """
-        Initialize the environment.
+        Initialize environment.
 
         Args:
-            mode (str): "ai" for AI control, "human" for manual keyboard control.
+            mode: "ai" or "human".
+            headless: If True, attempt to run without opening a visible window.
         """
+        self.mode = mode
+        self.headless = bool(headless)
+
+        # Load config (screen size)
         with open("config.yaml", "r") as f:
-            config = yaml.safe_load(f)
+            cfg = yaml.safe_load(f)
+        self.SCREEN_WIDTH = int(cfg.get("screen_width", 288))
+        self.SCREEN_HEIGHT = int(cfg.get("screen_height", 512))
 
-        SCREEN_WIDTH = config["screen_width"]
-        SCREEN_HEIGHT = config["screen_height"]
+        # If headless requested, set dummy driver before pygame.init()
+        if self.headless:
+            os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 
+        # Initialize pygame
         pygame.init()
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption("Flappy Bird")
+
+        # In headless mode try to create a tiny display so image.convert* works
+        self._created_dummy_display = False
+        if self.headless:
+            try:
+                pygame.display.init()
+                pygame.display.set_mode((1, 1))
+                self._created_dummy_display = True
+            except Exception:
+                # If dummy display fails we keep going; some image ops may still work
+                pass
+
+        # Create visible surface only when not headless
+        if not self.headless:
+            self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+            pygame.display.set_caption("Flappy Bird (env)")
+        else:
+            self.screen = None
+
+        # Time keeping
         self.clock = pygame.time.Clock()
 
-        self.mode = mode
-        self.game = Game(self.screen, user=mode)
+        # Create Game instance (try keyword args then positional fallback)
+        try:
+            self.game = Game(mode=self.mode, surface=self.screen, width=self.SCREEN_WIDTH, height=self.SCREEN_HEIGHT, headless=self.headless)
+        except TypeError:
+            # positional fallback in case Game signature differs
+            self.game = Game(self.mode, self.screen, self.SCREEN_WIDTH, self.SCREEN_HEIGHT, self.headless)
 
-        # Direct references for faster access
-        self.bird = self.game.bird
-        self.pipes = self.game.pipes
+        # Shortcuts to in-game objects
+        self.bird = getattr(self.game, "bird", None)
+        self.pipes = getattr(self.game, "pipes", [])
 
-    
-
-    def reset(self):
-        """
-        Fully reset the game state.
-
-        Returns:
-            list: Initial observation [bird_y, bird_velocity, pipe_distance, pipe_top, pipe_bottom].
-        """
+    def reset(self) -> List[float]:
+        """Reset the game and return initial observation."""
         self.game.reset()
         self.bird = self.game.bird
         self.pipes = self.game.pipes
         return self.get_state()
 
-    def step(self, action):
+    def step(self, action: int) -> Tuple[List[float], float, bool, Dict]:
         """
-        Perform one step in the game.
+        Advance the game by one step.
 
         Args:
-            action (int or None):
-                1 = jump, 0 = do nothing
-        Returns:
-            tuple: (next_state, reward, done, info)
-        """
-        # AI control
-        if action == 1:
-            self.bird.jump()
-        # Update game logic
-        reward, done = self.game.update_logic()
+            action: 0 = do nothing, 1 = jump
 
+        Returns:
+            (next_state, reward, done, info)
+        """
+        if action == 1 and hasattr(self.bird, "jump"):
+            self.bird.jump()
+
+        reward, done = self.game.update()
         return self.get_state(), reward, done, {}
 
-    def get_state(self):
+    def get_state(self) -> List[float]:
         """
-        Build the observation for AI training.
-
-        Returns:
-            list: [bird_y, bird_velocity, pipe_distance, pipe_top, pipe_bottom]
+        Build simple observation for agent:
+        [bird_y, bird_velocity, pipe_distance, pipe_top_y, pipe_bottom_y]
         """
-        bird_y = self.bird.y
-        bird_vel = self.bird.velocity
+        bird_y = getattr(self.bird, "y", 0)
+        bird_vel = getattr(self.bird, "velocity", 0)
 
-        # Find the next pipe in front of the bird
-        pipe = next((p for p in self.pipes if p.x + p.width > self.bird.x), None)
+        # find next pipe in front of the bird
+        next_pipe = next((p for p in (self.pipes or []) if getattr(p, "x", 0) + getattr(p, "width", 0) > getattr(self.bird, "x", 0)), None)
 
-        if pipe is None:
-            pipe_dist = 0
-            pipe_top = 0
-            pipe_bottom = 0
+        if next_pipe:
+            try:
+                top_rect, bottom_rect = next_pipe.get_rects()
+                pipe_dist = getattr(next_pipe, "x", 0) - getattr(self.bird, "x", 0)
+                pipe_top_y = getattr(top_rect, "bottom", 0)
+                pipe_bottom_y = getattr(bottom_rect, "top", 0)
+            except Exception:
+                pipe_dist = getattr(next_pipe, "x", 0) - getattr(self.bird, "x", 0)
+                pipe_top_y = 0
+                pipe_bottom_y = self.SCREEN_HEIGHT
         else:
-            top_rect, bottom_rect = pipe.get_rects()
-            pipe_dist = pipe.x - self.bird.x
-            pipe_top = top_rect
-            pipe_bottom = bottom_rect
+            pipe_dist = self.SCREEN_WIDTH
+            pipe_top_y = 0
+            pipe_bottom_y = self.SCREEN_HEIGHT
 
-        return [bird_y, bird_vel, pipe_dist, pipe_top, pipe_bottom]
+        return [bird_y, bird_vel, pipe_dist, pipe_top_y, pipe_bottom_y]
 
-    def render(self):
-        """
-        Render the current game frame and maintain the framerate.
-        """
-        pygame.display.flip()
+    def render(self) -> None:
+        """Render current frame to the display (no-op in headless)."""
+        if not self.headless:
+            pygame.display.flip()
+        # keep timing consistent
         self.clock.tick(30)
 
-    def close(self):
-        """
-        Close the Pygame window.
-        """
+    def close(self) -> None:
+        """Clean up pygame and any dummy display used for headless mode."""
+        if getattr(self, "_created_dummy_display", False):
+            try:
+                pygame.display.quit()
+            except Exception:
+                pass
         pygame.quit()

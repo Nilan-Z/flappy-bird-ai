@@ -1,81 +1,105 @@
 import sys
+import os
 import argparse
-import pygame
 import yaml
+
+# If headless requested on command line, set SDL driver before pygame import.
+if "--headless" in sys.argv:
+    os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
+
+import pygame
 from flappybird.game import Game
 from ai.flappybird_env import FlappyBirdEnv
-from ai.train import TrainAgent  
+from ai.train import TrainAgent
 
-# Load game configuration from YAML file
+# Load config
 with open("config.yaml", "r") as f:
-    config = yaml.safe_load(f)
+    cfg = yaml.safe_load(f)
 
-SCREEN_WIDTH = config["screen_width"]
-SCREEN_HEIGHT = config["screen_height"]
+SCREEN_WIDTH = int(cfg.get("screen_width", 288))
+SCREEN_HEIGHT = int(cfg.get("screen_height", 512))
+
 
 def run_human():
-    """
-    Launch the game in player-controlled mode.
-    Initializes Pygame, loads assets, and processes real-time input.
-    """
+    """Run game in human-play mode."""
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Flappy Bird - Human Mode")
-    pygame.display.set_icon(pygame.image.load("assets/sprites/yellowbird-upflap.png").convert_alpha())
+    try:
+        icon = pygame.image.load("assets/sprites/yellowbird-upflap.png").convert_alpha()
+        pygame.display.set_icon(icon)
+    except Exception:
+        # non-fatal: continue if icon fails to load
+        pass
 
-    game = Game(screen, user="human")
+    # Create Game instance (match your Game signature)
+    try:
+        game = Game(mode="human", surface=screen, width=SCREEN_WIDTH, height=SCREEN_HEIGHT, headless=False)
+    except TypeError:
+        # fallback for alternate Game signature
+        game = Game("human", screen, SCREEN_WIDTH, SCREEN_HEIGHT, False)
+
     clock = pygame.time.Clock()
     game.waiting_to_start = True
 
     while True:
-        # Event loop for handling keyboard and mouse actions
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
-            # Start game or trigger bird jump
             if (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE) or event.type == pygame.MOUSEBUTTONDOWN:
                 if game.waiting_to_start:
                     game.waiting_to_start = False
                 elif not game.game_over:
                     game.bird.jump()
-                    game.sfx_jump.play()
+                    try:
+                        game.sfx_jump.play()
+                    except Exception:
+                        pass
 
-        # Allow bird idle animation before game starts
         if not game.waiting_to_start and not game.game_over:
             game.bird.update()
 
         game.update()
         pygame.display.flip()
-        clock.tick(60)  # Limit frame rate
+        clock.tick(60)
 
 
-def run_ai(train=False):
-    """
-    Launch the game in AI mode.
-    Can either run an already trained agent or start a training session.
-    """
-    env = FlappyBirdEnv(mode="ai")
+def run_ai(train: bool = False, headless: bool = False):
+    """Run game in AI mode (optionally train)."""
+    env = FlappyBirdEnv(mode="ai", headless=headless)
 
     if train:
-        print("Starting AI training...")
-        TrainAgent.train(episodes=500)
+        trainer = TrainAgent(headless=headless)
+        trainer.train(episodes=1000)
+        env.close()
     else:
-        print("Running AI without training...")
-        pass
-
-    env.close()
+        # simple AI run loop (replace action logic with trained agent)
+        state = env.reset()
+        done = False
+        step = 0
+        while not done:
+            action = 0  # placeholder: 0 = noop, 1 = jump
+            next_state, reward, done, _ = env.step(action)
+            state = next_state
+            step += 1
+            if not headless:
+                env.render()
+        env.close()
 
 
 if __name__ == "__main__":
-    # Command-line interface to select mode and options
     parser = argparse.ArgumentParser(description="Flappy Bird - Human or AI Mode")
-    parser.add_argument("user", choices=["human", "ai"], help="Choose control type: 'human' or 'ai'")
-    parser.add_argument("--train", action="store_true", help="Use with 'ai' to enable training mode")
+    parser.add_argument("user", choices=["human", "ai"], help="Choose 'human' or 'ai'")
+    parser.add_argument("--train", action="store_true", help="Enable training (AI only)")
+    parser.add_argument("--headless", action="store_true", help="Run without rendering (AI only)")
     args = parser.parse_args()
+
+    # single small status print
+    print(f"Starting mode={args.user} train={args.train} headless={args.headless}")
 
     if args.user == "human":
         run_human()
-    elif args.user == "ai":
-        run_ai(train=args.train)
+    else:
+        run_ai(train=args.train, headless=args.headless)
