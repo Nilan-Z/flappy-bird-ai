@@ -1,35 +1,33 @@
 import pygame
 import random
-
 class Bird:
-    def __init__(self):
-        # Load default red bird sprites
-        base_sprites = [
-            pygame.image.load("assets/sprites/redbird-upflap.png").convert_alpha(),
-            pygame.image.load("assets/sprites/redbird-midflap.png").convert_alpha(),
-            pygame.image.load("assets/sprites/redbird-downflap.png").convert_alpha()
-        ]
+    def __init__(self, mode):
+        self.mode = mode
 
-        # Randomly select bird color and load corresponding sprites
+        # Select bird color randomly
         self.sprites_color = random.choice(["red", "blue", "yellow"])
-        if self.sprites_color == "red":
-            base_sprites = [
-                pygame.image.load("assets/sprites/redbird-upflap.png").convert_alpha(),
-                pygame.image.load("assets/sprites/redbird-midflap.png").convert_alpha(),
-                pygame.image.load("assets/sprites/redbird-downflap.png").convert_alpha()
-            ]
-        elif self.sprites_color == "blue":
-            base_sprites = [
-                pygame.image.load("assets/sprites/bluebird-upflap.png").convert_alpha(),
-                pygame.image.load("assets/sprites/bluebird-midflap.png").convert_alpha(),
-                pygame.image.load("assets/sprites/bluebird-downflap.png").convert_alpha()
-            ]
-        else:
-            base_sprites = [
-                pygame.image.load("assets/sprites/yellowbird-upflap.png").convert_alpha(),
-                pygame.image.load("assets/sprites/yellowbird-midflap.png").convert_alpha(),
-                pygame.image.load("assets/sprites/yellowbird-downflap.png").convert_alpha()
-            ]
+
+        # Load base sprites depending on color and mode
+        sprite_paths = {
+            "red": ["assets/sprites/redbird-upflap.png",
+                    "assets/sprites/redbird-midflap.png",
+                    "assets/sprites/redbird-downflap.png"],
+            "blue": ["assets/sprites/bluebird-upflap.png",
+                     "assets/sprites/bluebird-midflap.png",
+                     "assets/sprites/bluebird-downflap.png"],
+            "yellow": ["assets/sprites/yellowbird-upflap.png",
+                       "assets/sprites/yellowbird-midflap.png",
+                       "assets/sprites/yellowbird-downflap.png"]
+        }
+
+        base_sprites = []
+        for path in sprite_paths[self.sprites_color]:
+            img = pygame.image.load(path)
+            if mode == "human":
+                img = img.convert_alpha()
+            else:
+                img = img.convert()
+            base_sprites.append(img)
 
         # Scale sprites by 1.5x
         self.sprites = []
@@ -59,6 +57,9 @@ class Bird:
         self.max_fall_speed = 14
         self.rotation_speed = 10
         self.fall_rotation_threshold = 5
+
+    # jump, update, draw, get_rect, reset restent identiques
+
 
     def jump(self):
         # Apply jump impulse
@@ -103,3 +104,25 @@ class Bird:
         # Return hitbox of current sprite
         sprite = self.sprites[self.current_sprite_index]
         return pygame.Rect(self.x, self.y, sprite.get_width(), sprite.get_height())
+    
+    def reset(self):
+        # Animation control
+        self.current_sprite_index = 0
+        self.animation_frame = 0
+
+        # Initial position
+        self.x = 100
+        self.y = 235
+
+        # Physics settings
+        self.normal_gravity = 0.2
+        self.heavy_gravity = 0.3
+        self.gravity = self.normal_gravity
+        self.jump_force = -5.5
+        self.velocity = 0
+
+        # Rotation behavior
+        self.angle = 0
+        self.max_fall_speed = 14
+        self.rotation_speed = 10
+        self.fall_rotation_threshold = 5
