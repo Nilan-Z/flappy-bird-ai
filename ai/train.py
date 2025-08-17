@@ -1,5 +1,6 @@
 import numpy as np
 import pygame
+import time
 from ai.flappybird_env import FlappyBirdEnv
 from ai.dqn_agent import DQNAgent
 
@@ -76,6 +77,8 @@ class TrainAgent:
                 self.total_reward += self.reward
                 self.step_count += 1
 
+                time.sleep(0.2)
+
                 # If headless, skip rendering/delays for maximum speed
 
             # End of episode: update target network for stability
@@ -100,5 +103,5 @@ if __name__ == "__main__":
     # Example usage:
     # - headless=True  → fast training without rendering
     # - headless=False → render game window during training
-    trainer = TrainAgent(episodes=500, headless=True)
-    trainer.train()
+    trainer = TrainAgent(headless=True)
+    trainer.train(episodes=500)
