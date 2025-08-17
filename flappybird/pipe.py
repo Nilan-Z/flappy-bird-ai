@@ -1,5 +1,6 @@
 import pygame
 import random
+import yaml
 
 class Pipe():
     """
@@ -19,10 +20,13 @@ class Pipe():
         Args:
             x (int): The initial x-coordinate of the pipe on the screen.
         """
+        with open("config.yaml", "r") as f:
+            cfg = yaml.safe_load(f)
+
         self.original_sprite = pygame.image.load("assets/sprites/pipe-green.png").convert_alpha()
         self.sprite = pygame.transform.scale(self.original_sprite, (int(self.original_sprite.get_width() * 1.5), int(self.original_sprite.get_height())))
         self.flipped_sprite = pygame.transform.flip(self.sprite, False, True)
-        self.gap = 150
+        self.gap = int(cfg.get("pipe_gap", 100))
         self.velocity = 3
         self.x = x
         self.passed = False
