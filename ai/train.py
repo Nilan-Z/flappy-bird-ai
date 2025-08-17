@@ -1,6 +1,5 @@
 import numpy as np
 import pygame
-import time
 from ai.flappybird_env import FlappyBirdEnv
 from ai.dqn_agent import DQNAgent
 
@@ -76,8 +75,6 @@ class TrainAgent:
                 self.state = self.next_state
                 self.total_reward += self.reward
                 self.step_count += 1
-
-                time.sleep(0.2)
 
                 # If headless, skip rendering/delays for maximum speed
 
