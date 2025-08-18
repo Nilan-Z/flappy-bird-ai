@@ -76,8 +76,6 @@ class TrainAgent:
                 self.total_reward += self.reward
                 self.step_count += 1
 
-                # If headless, skip rendering/delays for maximum speed
-
             # End of episode: update target network for stability
             self.agent.update_target_model()
 
