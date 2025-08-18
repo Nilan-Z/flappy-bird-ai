@@ -118,6 +118,7 @@ class Game:
 
         # pre-start screen for human: show "get ready"
         if self.mode == "human" and self.waiting_to_start:
+            self.bird.jump()
             self.draw_get_ready()
             self.update_base()
             self.draw_base()
