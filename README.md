@@ -85,12 +85,11 @@ Training the AI:
 
 Train for a specific number of episodes (recommended):
 
-
-python main.py ai --train 5000
-
 ```bash
-If no number is provided, training will default to 1 episode:
+python main.py ai --train 5000
 ```
+
+If no number is provided, training will default to 1 episode:
 
 ```bash
 python main.py ai --train
@@ -104,9 +103,9 @@ python main.py ai --train --headless
 
 Notes:
 
--Training logs show episode, score, reward, epsilon, and steps.
--Trained models are saved automatically.
--For lower-performance machines, reduce memory_size or batch_size to prevent crashes.
+- Training logs show episode, score, reward, epsilon, and steps.
+- Trained models are saved automatically.
+- For lower-performance machines, reduce memory_size or batch_size to prevent crashes.
 
 ---
 
