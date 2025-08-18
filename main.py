@@ -29,14 +29,14 @@ def run_human():
         icon = pygame.image.load("assets/sprites/yellowbird-upflap.png").convert_alpha()
         pygame.display.set_icon(icon)
     except Exception:
-        # non-fatal: continue if icon fails to load
+        # Non-fatal: continue if icon fails to load
         pass
 
     # Create Game instance (match your Game signature)
     try:
         game = Game(mode="human", surface=screen, width=SCREEN_WIDTH, height=SCREEN_HEIGHT, headless=False)
     except TypeError:
-        # fallback for alternate Game signature
+        # Fallback for alternate Game signature
         game = Game("human", screen, SCREEN_WIDTH, SCREEN_HEIGHT, False)
 
     clock = pygame.time.Clock()
@@ -66,24 +66,22 @@ def run_human():
         clock.tick(60)
 
 
-def run_ai(train: bool = False, headless: bool = False):
+def run_ai(train: int = 0, headless: bool = False):
     """Run game in AI mode (optionally train)."""
     env = FlappyBirdEnv(mode="ai", headless=headless)
 
-    if train:
+    if train > 0:
         trainer = TrainAgent(headless=headless)
-        trainer.train(episodes=1000)
+        trainer.train(episodes=train)
         env.close()
     else:
-        # simple AI run loop (replace action logic with trained agent)
+        # Simple AI run loop (replace action logic with trained agent)
         state = env.reset()
         done = False
-        step = 0
         while not done:
             action = 0  # placeholder: 0 = noop, 1 = jump
             next_state, reward, done, _ = env.step(action)
             state = next_state
-            step += 1
             if not headless:
                 env.render()
         env.close()
@@ -92,11 +90,11 @@ def run_ai(train: bool = False, headless: bool = False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Flappy Bird - Human or AI Mode")
     parser.add_argument("user", choices=["human", "ai"], help="Choose 'human' or 'ai'")
-    parser.add_argument("--train", action="store_true", help="Enable training (AI only)")
+    parser.add_argument("--train", type=int, nargs="?", const=1, default=0,
+                        help="Number of episodes to train (AI only). If omitted but flag is given, defaults to 1.")
     parser.add_argument("--headless", action="store_true", help="Run without rendering (AI only)")
     args = parser.parse_args()
 
-    # single small status print
     print(f"Starting mode={args.user} train={args.train} headless={args.headless}")
 
     if args.user == "human":

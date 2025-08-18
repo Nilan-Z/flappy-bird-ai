@@ -81,7 +81,16 @@ Modes:
     human — Play manually
     ai — Let the AI play automatically
 
-Training the AI
+Training the AI:
+
+Train for a specific number of episodes (recommended):
+
+
+python main.py ai --train 5000
+
+```bash
+If no number is provided, training will default to 1 episode:
+```
 
 ```bash
 python main.py ai --train
