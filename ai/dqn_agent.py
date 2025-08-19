@@ -3,15 +3,18 @@ import tensorflow as tf
 import yaml
 from tensorflow.keras import layers
 from collections import deque
+import os
+
 
 class DQNAgent:
-    def __init__(self, state_size, action_size):
+    def __init__(self, state_size, action_size, model_path="dqn_model.h5"):
         # Load config from YAML
         with open("config.yaml", "r") as f:
             cfg = yaml.safe_load(f)
 
         self.state_size = state_size
         self.action_size = action_size
+        self.model_path = model_path
 
         # Memory
         self.memory_size = int(cfg.get("memory_size", 20000))
@@ -25,10 +28,14 @@ class DQNAgent:
         self.batch_size = int(cfg.get("batch_size", 64))
         self.train_start = int(cfg.get("train_start", 1000))
 
-        # Build models
-        self.model = self.build_model()
-        self.target_model = self.build_model()
-        self.update_target_model()
+        # Build or load models
+        if os.path.exists(self.model_path) and os.path.exists("target_" + self.model_path):
+            self.load(self.model_path)
+        else:
+            self.model = self.build_model()
+            self.target_model = self.build_model()
+            self.update_target_model()
+
         self.train_steps = 0
 
     def build_model(self):
@@ -93,4 +100,27 @@ class DQNAgent:
         # Optional: update target model periodically
         self.train_steps += 1
         if self.train_steps % 1000 == 0:
+            self.update_target_model()
+
+    def save(self, path=None):
+        """Save the trained models"""
+        if path is None:
+            path = self.model_path
+        self.model.save(path)
+        self.target_model.save("target_" + path)
+        print(f"[INFO] Models saved -> {path}, target_{path}")
+
+    def load(self, path=None):
+        """Load the trained models"""
+        if path is None:
+            path = self.model_path
+        try:
+            self.model = tf.keras.models.load_model(path)
+            self.target_model = tf.keras.models.load_model("target_" + path)
+            print(f"[INFO] Models loaded from {path}")
+        except Exception as e:
+            print(f"[WARNING] Could not load models: {e}")
+            # fallback: fresh models
+            self.model = self.build_model()
+            self.target_model = self.build_model()
             self.update_target_model()
