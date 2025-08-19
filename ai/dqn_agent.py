@@ -5,9 +5,9 @@ from tensorflow.keras import layers
 from collections import deque
 import os
 
-
 class DQNAgent:
-    def __init__(self, state_size, action_size, model_path="dqn_model.h5"):
+    def __init__(self, state_size, action_size, model_path="ai\dqn_model.keras"):
+
         # Load config from YAML
         with open("config.yaml", "r") as f:
             cfg = yaml.safe_load(f)
@@ -28,13 +28,11 @@ class DQNAgent:
         self.batch_size = int(cfg.get("batch_size", 64))
         self.train_start = int(cfg.get("train_start", 1000))
 
-        # Build or load models
-        if os.path.exists(self.model_path) and os.path.exists("target_" + self.model_path):
+        # Build or load model
+        if os.path.exists(self.model_path):
             self.load(self.model_path)
         else:
             self.model = self.build_model()
-            self.target_model = self.build_model()
-            self.update_target_model()
 
         self.train_steps = 0
 
@@ -46,14 +44,10 @@ class DQNAgent:
             layers.Dense(self.action_size, activation='linear')
         ])
         model.compile(
-            loss=tf.keras.losses.Huber(),  # more stable than MSE
+            loss=tf.keras.losses.Huber(),
             optimizer=tf.keras.optimizers.Adam(learning_rate=0.001)
         )
         return model
-
-    def update_target_model(self):
-        """Copy weights from main model to target model"""
-        self.target_model.set_weights(self.model.get_weights())
 
     def remember(self, state, action, reward, next_state, done):
         """Store experience in memory"""
@@ -71,7 +65,6 @@ class DQNAgent:
         if len(self.memory) < self.train_start:
             return
 
-        # Safely handle batch size if memory is small
         batch_size = min(self.batch_size, len(self.memory))
         minibatch = np.random.choice(len(self.memory), batch_size, replace=False)
 
@@ -85,7 +78,7 @@ class DQNAgent:
             if done:
                 target[action] = reward
             else:
-                t = self.target_model.predict(np.array([next_state]), verbose=0)[0]
+                t = self.model.predict(np.array([next_state]), verbose=0)[0]
                 target[action] = reward + self.gamma * np.amax(t)
 
             states[i] = state
@@ -97,30 +90,21 @@ class DQNAgent:
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
-        # Optional: update target model periodically
         self.train_steps += 1
-        if self.train_steps % 1000 == 0:
-            self.update_target_model()
 
     def save(self, path=None):
-        """Save the trained models"""
+        """Save the trained model"""
         if path is None:
             path = self.model_path
         self.model.save(path)
-        self.target_model.save("target_" + path)
-        print(f"[INFO] Models saved -> {path}, target_{path}")
 
     def load(self, path=None):
-        """Load the trained models"""
+        """Load the trained model"""
         if path is None:
             path = self.model_path
         try:
             self.model = tf.keras.models.load_model(path)
-            self.target_model = tf.keras.models.load_model("target_" + path)
-            print(f"[INFO] Models loaded from {path}")
         except Exception as e:
-            print(f"[WARNING] Could not load models: {e}")
-            # fallback: fresh models
+            print(f"[WARNING] Could not load model: {e}")
+            # fallback: fresh model
             self.model = self.build_model()
-            self.target_model = self.build_model()
-            self.update_target_model()
