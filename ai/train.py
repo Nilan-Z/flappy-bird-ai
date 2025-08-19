@@ -79,12 +79,16 @@ class TrainAgent:
             # End of episode: update target network for stability
             self.agent.update_target_model()
 
+            # Ensure epsilon decays every episode
+            if self.agent.epsilon > self.agent.epsilon_min:
+                self.agent.epsilon *= self.agent.epsilon_decay
+
             # Log training progress
             print(
                 f"Episode {self.episode_idx + 1}/{self.episodes} | "
                 f"Score: {self.env.game.current_score} | "
                 f"Reward: {self.total_reward:.2f} | "
-                f"Epsilon: {self.agent.epsilon:.2f} | "
+                f"Epsilon: {self.agent.epsilon:.4f} | "
                 f"Steps: {self.step_count}"
             )
 
@@ -92,6 +96,7 @@ class TrainAgent:
         self.env.close()
         if not self.headless:
             pygame.quit()
+
 
 
 if __name__ == "__main__":
