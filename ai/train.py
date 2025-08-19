@@ -92,6 +92,8 @@ class TrainAgent:
                 f"Steps: {self.step_count}"
             )
 
+            self.agent.save("dqn_model.h5")
+
         # Cleanup resources
         self.env.close()
         if not self.headless:
