@@ -95,8 +95,6 @@ if __name__ == "__main__":
     parser.add_argument("--headless", action="store_true", help="Run without rendering (AI only)")
     args = parser.parse_args()
 
-    print(f"Starting mode={args.user} train={args.train} headless={args.headless}")
-
     if args.user == "human":
         run_human()
     else:
