@@ -4,40 +4,38 @@ import yaml
 from tensorflow.keras import layers
 from collections import deque
 import os
-
 class DQNAgent:
-    def __init__(self, state_size, action_size, model_path="ai\dqn_model.keras"):
-
-        # Load config from YAML
+    def __init__(self, state_size, action_size, model_path="ai/dqn_model.keras", training=True):
+        # Load config
         with open("config.yaml", "r") as f:
             cfg = yaml.safe_load(f)
 
+        self.training = training
         self.state_size = state_size
         self.action_size = action_size
         self.model_path = model_path
 
-        # Memory
+        # Memory only used if training
         self.memory_size = int(cfg.get("memory_size", 20000))
         self.memory = deque(maxlen=self.memory_size)
 
-        # DQN hyperparameters
+        # Hyperparams
         self.gamma = float(cfg.get("gamma", 0.99))
-        self.epsilon = float(cfg.get("epsilon_start", 1.0))
+        self.epsilon = float(cfg.get("epsilon_start", 1.0)) if training else 0.0
         self.epsilon_min = float(cfg.get("epsilon_min", 0.01))
         self.epsilon_decay = float(cfg.get("epsilon_decay", 0.995))
         self.batch_size = int(cfg.get("batch_size", 64))
         self.train_start = int(cfg.get("train_start", 1000))
-
-        # Build or load model
+        # Load model if exists, else build new
         if os.path.exists(self.model_path):
             self.load(self.model_path)
         else:
+            print("[WARNING] No saved model found, creating new one.")
             self.model = self.build_model()
 
         self.train_steps = 0
 
     def build_model(self):
-        """Build the Q-network model"""
         model = tf.keras.Sequential([
             layers.Dense(64, input_dim=self.state_size, activation='relu'),
             layers.Dense(64, activation='relu'),
@@ -50,18 +48,19 @@ class DQNAgent:
         return model
 
     def remember(self, state, action, reward, next_state, done):
-        """Store experience in memory"""
-        self.memory.append((state, action, reward, next_state, done))
+        if self.training:
+            self.memory.append((state, action, reward, next_state, done))
 
     def act(self, state):
-        """Select action using epsilon-greedy policy"""
-        if np.random.rand() <= self.epsilon:
+        # Exploration uniquement si training
+        if self.training and np.random.rand() <= self.epsilon:
             return np.random.choice(self.action_size)
         q_values = self.model.predict(np.array([state]), verbose=0)[0]
         return np.argmax(q_values)
 
     def replay(self):
-        """Train the network using random samples from memory"""
+        if not self.training:
+            return
         if len(self.memory) < self.train_start:
             return
 
@@ -86,25 +85,17 @@ class DQNAgent:
 
         self.model.fit(states, targets, epochs=1, verbose=0)
 
-        # Decay epsilon
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
         self.train_steps += 1
 
     def save(self, path=None):
-        """Save the trained model"""
         if path is None:
             path = self.model_path
         self.model.save(path)
 
     def load(self, path=None):
-        """Load the trained model"""
         if path is None:
             path = self.model_path
-        try:
-            self.model = tf.keras.models.load_model(path)
-        except Exception as e:
-            print(f"[WARNING] Could not load model: {e}")
-            # fallback: fresh model
-            self.model = self.build_model()
+        self.model = tf.keras.models.load_model(path)
