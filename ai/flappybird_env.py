@@ -118,7 +118,7 @@ class FlappyBirdEnv:
         if not self.headless:
             pygame.display.flip()
         # keep timing consistent
-        self.clock.tick(30)
+        self.clock.tick(60)
 
     def close(self) -> None:
         """Clean up pygame and any dummy display used for headless mode."""
