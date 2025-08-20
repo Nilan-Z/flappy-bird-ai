@@ -3,7 +3,6 @@ import os
 import argparse
 import yaml
 
-# If headless requested on command line, set SDL driver before pygame import.
 if "--headless" in sys.argv:
     os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 
@@ -11,6 +10,7 @@ import pygame
 from flappybird.game import Game
 from ai.flappybird_env import FlappyBirdEnv
 from ai.train import TrainAgent
+from ai.dqn_agent import DQNAgent
 
 # Load config
 with open("config.yaml", "r") as f:
@@ -29,14 +29,11 @@ def run_human():
         icon = pygame.image.load("assets/sprites/yellowbird-upflap.png").convert_alpha()
         pygame.display.set_icon(icon)
     except Exception:
-        # Non-fatal: continue if icon fails to load
         pass
 
-    # Create Game instance (match your Game signature)
     try:
         game = Game(mode="human", surface=screen, width=SCREEN_WIDTH, height=SCREEN_HEIGHT, headless=False)
     except TypeError:
-        # Fallback for alternate Game signature
         game = Game("human", screen, SCREEN_WIDTH, SCREEN_HEIGHT, False)
 
     clock = pygame.time.Clock()
@@ -67,7 +64,6 @@ def run_human():
 
 
 def run_ai(train: int = 0, headless: bool = False):
-    """Run game in AI mode (optionally train)."""
     env = FlappyBirdEnv(mode="ai", headless=headless)
 
     if train > 0:
@@ -75,16 +71,20 @@ def run_ai(train: int = 0, headless: bool = False):
         trainer.train(episodes=train)
         env.close()
     else:
-        # Simple AI run loop (replace action logic with trained agent)
+        state_size = 5
+        action_size = 2
+        agent = DQNAgent(state_size, action_size, training=False) 
+
         state = env.reset()
         done = False
         while not done:
-            action = 0  # placeholder: 0 = noop, 1 = jump
+            action = agent.act(state)
             next_state, reward, done, _ = env.step(action)
             state = next_state
             if not headless:
                 env.render()
         env.close()
+
 
 
 if __name__ == "__main__":
