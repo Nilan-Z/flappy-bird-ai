@@ -177,7 +177,7 @@ class Game:
         if self.check_collision():
             self.game_over = True
             self.bird.velocity = 0
-            return -10.0, True
+            return -10.0 + self.penality, True
 
         return 0.1, False
 
@@ -228,8 +228,10 @@ class Game:
         """Return True if bird collides with ground, ceiling or pipes."""
         bird_rect = self.bird.get_rect()
         if bird_rect.bottom >= self.base_y:
+            self.penality = -100
             return True
         if bird_rect.top <= 0:
+            self.penality = -100
             return True
         for pipe in self.pipes:
             top_rect, bottom_rect = pipe.get_rects()
