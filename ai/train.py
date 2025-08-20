@@ -75,10 +75,7 @@ class TrainAgent:
                 self.state = self.next_state
                 self.total_reward += self.reward
                 self.step_count += 1
-
-            # End of episode: update target network for stability
-            self.agent.update_target_model()
-
+                
             # Ensure epsilon decays every episode
             if self.agent.epsilon > self.agent.epsilon_min:
                 self.agent.epsilon *= self.agent.epsilon_decay
@@ -92,7 +89,7 @@ class TrainAgent:
                 f"Steps: {self.step_count}"
             )
 
-            self.agent.save("dqn_model.h5")
+            self.agent.save()
 
         # Cleanup resources
         self.env.close()
