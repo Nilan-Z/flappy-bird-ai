@@ -125,7 +125,7 @@ class Game:
             return 0.0, False
 
         # game over handling
-        if self.game_over:
+        if self.game_over and self.mode == 'human':
             self.bird.update()
             self.bird.draw(self.surface)
             self.draw_pipes()
