@@ -7,7 +7,7 @@ from flappybird.score import Score
 
 
 class Game:
-    def __init__(self, mode, surface=None, width=288, height=512, headless=False):
+    def __init__(self, mode, surface=None, width=423, height=590, headless=False):
         """
         Core game controller.
 
