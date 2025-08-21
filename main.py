@@ -16,8 +16,8 @@ from ai.dqn_agent import DQNAgent
 with open("config.yaml", "r") as f:
     cfg = yaml.safe_load(f)
 
-SCREEN_WIDTH = int(cfg.get("screen_width", 288))
-SCREEN_HEIGHT = int(cfg.get("screen_height", 512))
+SCREEN_WIDTH = int(cfg.get("screen_width", 423))
+SCREEN_HEIGHT = int(cfg.get("screen_height", 590))
 
 
 def run_human():
