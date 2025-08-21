@@ -20,8 +20,8 @@ class FlappyBirdEnv:
         # Load config (screen size)
         with open("config.yaml", "r") as f:
             cfg = yaml.safe_load(f)
-        self.SCREEN_WIDTH = int(cfg.get("screen_width", 288))
-        self.SCREEN_HEIGHT = int(cfg.get("screen_height", 512))
+        self.SCREEN_WIDTH = int(cfg.get("screen_width", 423))
+        self.SCREEN_HEIGHT = int(cfg.get("screen_height", 590))
 
         # If headless requested, set dummy driver before pygame.init()
         if self.headless:
