@@ -1,6 +1,5 @@
 import pygame
 import json
-import time
 from flappybird.bird import Bird
 from flappybird.pipe import Pipe
 from flappybird.score import Score
