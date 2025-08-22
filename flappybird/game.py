@@ -131,7 +131,8 @@ class Game:
             self.draw_pipes()
             self.draw_base()
             self.draw_game_over()
-            time.wait(3)
+            pygame.time.wait(3000)
+
 
             if self.current_score > self.best_score:
                 self.best_score = self.current_score
