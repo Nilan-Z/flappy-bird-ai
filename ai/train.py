@@ -7,27 +7,25 @@ from ai.dqn_agent import DQNAgent
 class TrainAgent:
     def __init__(self, headless: bool = False):
         """
-        Initialize the training agent.
+        Training loop manager for the Flappy Bird DQN agent.
 
         Args:
-            episodes (int): Number of training episodes to run.
-            headless (bool): If True, training runs without rendering a window 
-                             (faster training, no Pygame events).
+            headless: If True, training runs without rendering a window 
+                      (faster training, no Pygame events).
         """
-        # Training configuration
         self.headless = headless
 
-        # State (input size) and action (output size) dimensions
+        # State (input) and action (output) dimensions for the agent
         self.state_size = 5
         self.action_size = 2
 
-        # Initialize environment (handles its own rendering if not headless)
+        # Initialize Flappy Bird environment
         self.env = FlappyBirdEnv(mode="ai", headless=self.headless)
 
         # Initialize the Deep Q-Network (DQN) agent
         self.agent = DQNAgent(self.state_size, self.action_size)
 
-        # Initialize Pygame if not running headless (for rendering and events)
+        # Pygame setup only if rendering is enabled
         if not self.headless:
             pygame.init()
             pygame.display.set_caption("Flappy Bird AI Training")
@@ -44,12 +42,13 @@ class TrainAgent:
         self.episodes = episodes
         
         for self.episode_idx in range(self.episodes):
-            # Reset environment and initialize state
+            # Reset environment at start of each episode
             self.state = np.array(self.env.reset(), dtype=np.float32)
             self.total_reward = 0.0
             self.done = False
             self.step_count = 0
 
+            # Episode loop
             while not self.done:
                 # Handle rendering and user events only if not headless
                 if not self.headless:
@@ -60,14 +59,14 @@ class TrainAgent:
                             return
                     self.env.render()
 
-                # Choose action using epsilon-greedy strategy
+                # Select action (epsilon-greedy policy)
                 self.action = self.agent.act(self.state)
 
                 # Perform action in environment
                 self.next_state, self.reward, self.done, _ = self.env.step(self.action)
                 self.next_state = np.array(self.next_state, dtype=np.float32)
 
-                # Store experience and perform one step of replay
+                # Store experience and train from replay buffer
                 self.agent.remember(self.state, self.action, self.reward, self.next_state, self.done)
                 self.agent.replay()
 
@@ -76,7 +75,7 @@ class TrainAgent:
                 self.total_reward += self.reward
                 self.step_count += 1
                 
-            # Ensure epsilon decays every episode
+            # Decay exploration rate (epsilon) at the end of each episode
             if self.agent.epsilon > self.agent.epsilon_min:
                 self.agent.epsilon *= self.agent.epsilon_decay
 
@@ -89,13 +88,13 @@ class TrainAgent:
                 f"Steps: {self.step_count}"
             )
 
+            # Save agent model weights
             self.agent.save()
 
-        # Cleanup resources
+        # Cleanup resources after training completes
         self.env.close()
         if not self.headless:
             pygame.quit()
-
 
 
 if __name__ == "__main__":
