@@ -211,9 +211,8 @@ class Game:
     def draw_base(self):
         """Tile the base sprite across the bottom."""
         try:
-            self.surface.blit(self.base_sprite, (self.base_x, self.base_y))
-            self.surface.blit(self.base_sprite, (self.base_x + self.base_width, self.base_y))
-            self.surface.blit(self.base_sprite, (self.base_x + self.base_width * 2, self.base_y))
+            for i in range((self.screen_width // self.base_width) + 2):
+                self.surface.blit(self.base_sprite, (self.base_x + i * self.base_width, self.base_y))
         except Exception:
             pass
 
