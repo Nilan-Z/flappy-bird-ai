@@ -4,6 +4,7 @@ import yaml
 from tensorflow.keras import layers
 from collections import deque
 import os
+
 class DQNAgent:
     def __init__(self, state_size, action_size, model_path="ai/dqn_model.keras", training=True):
         # Load config
@@ -21,17 +22,20 @@ class DQNAgent:
 
         # Hyperparams
         self.gamma = float(cfg.get("gamma", 0.99))
-        self.epsilon = float(cfg.get("epsilon_start", 1.0)) if training else 0.0
         self.epsilon_min = float(cfg.get("epsilon_min", 0.01))
         self.epsilon_decay = float(cfg.get("epsilon_decay", 0.995))
         self.batch_size = int(cfg.get("batch_size", 64))
         self.train_start = int(cfg.get("train_start", 1000))
-        # Load model if exists, else build new
+
+        self.epsilon = float(cfg.get("epsilon_start", 1.0)) if training else self.epsilon_min
+        print(self.epsilon)
+
+        self.model = self.build_model()
+
         if os.path.exists(self.model_path):
-            self.load(self.model_path)
+            self.load()
         else:
-            print("[WARNING] No saved model found, creating new one.")
-            self.model = self.build_model()
+            print("[WARNING] No saved model found, starting with a new model.")
 
         self.train_steps = 0
 
@@ -52,7 +56,6 @@ class DQNAgent:
             self.memory.append((state, action, reward, next_state, done))
 
     def act(self, state):
-        # Exploration uniquement si training
         if self.training and np.random.rand() <= self.epsilon:
             return np.random.choice(self.action_size)
         q_values = self.model.predict(np.array([state]), verbose=0)[0]
@@ -93,9 +96,10 @@ class DQNAgent:
     def save(self, path=None):
         if path is None:
             path = self.model_path
-        self.model.save(path)
+        self.model.save_weights(path)
 
     def load(self, path=None):
         if path is None:
             path = self.model_path
-        self.model = tf.keras.models.load_model(path)
+        if os.path.exists(path):
+            self.model.load_weights(path)
