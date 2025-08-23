@@ -3,20 +3,10 @@ import random
 import yaml
 
 class Pipe():
-    """
-    Represents a pair of pipes (top and bottom) in the Flappy Bird game.
-
-    Each pipe has a gap between the top and bottom sections through which
-    the bird must pass. The pipes move horizontally across the screen.
-    """
-
     def __init__(self, x):
         """
         Initialize a Pipe object at a given horizontal position.
-
-        Loads and scales the pipe sprite, prepares a flipped sprite for the top pipe,
-        sets the gap size, movement velocity, and initializes pipe position and state.
-
+        
         Args:
             x (int): The initial x-coordinate of the pipe on the screen.
         """
