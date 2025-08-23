@@ -1,21 +1,8 @@
 import pygame
 
 class Score:
-    """
-    A class to handle rendering of numeric scores using digit sprites.
-
-    This class loads digit images (0-9) from assets, scales them,
-    and provides a method to draw a given score centered at a specified position.
-    """
-
     def __init__(self):
-        """
-        Initialize the Score object by loading and scaling digit sprites.
-
-        Each digit sprite (0-9) is loaded from the assets folder,
-        then scaled down to 90% of its original size to maintain consistent display.
-        The processed sprites are stored in a list for quick access during drawing.
-        """
+        #Load sprites form 0 to 9
         self.digit_sprites = []
         for digit in range(10):
             sprite = pygame.image.load(f"assets/sprites/{digit}.png").convert_alpha()
