@@ -58,9 +58,6 @@ class Bird:
         self.rotation_speed = 10
         self.fall_rotation_threshold = 5
 
-    # jump, update, draw, get_rect, reset restent identiques
-
-
     def jump(self):
         # Apply jump impulse
         self.velocity = self.jump_force
