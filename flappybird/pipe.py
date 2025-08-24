@@ -2,7 +2,8 @@ import pygame
 import random
 import yaml
 
-class Pipe():
+
+class Pipe:
     def __init__(self, x):
         """
         Initialize a Pipe object at a given horizontal position.
@@ -10,17 +11,25 @@ class Pipe():
         Args:
             x (int): The initial x-coordinate of the pipe on the screen.
         """
+        # Load configuration
         with open("config.yaml", "r") as f:
             cfg = yaml.safe_load(f)
 
+        # Load and scale pipe sprite
         self.original_sprite = pygame.image.load("assets/sprites/pipe-green.png").convert_alpha()
-        self.sprite = pygame.transform.scale(self.original_sprite, (int(self.original_sprite.get_width() * 1.5), int(self.original_sprite.get_height())))
+        self.sprite = pygame.transform.scale(
+            self.original_sprite,
+            (int(self.original_sprite.get_width() * 1.5), self.original_sprite.get_height())
+        )
         self.flipped_sprite = pygame.transform.flip(self.sprite, False, True)
+
         self.gap = int(cfg.get("pipe_gap", 100))
         self.velocity = 3
         self.x = x
         self.passed = False
         self.width = self.sprite.get_width()
+
+        # Set initial random vertical position
         self.set_height()
 
     def set_height(self):
