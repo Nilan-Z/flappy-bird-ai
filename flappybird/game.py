@@ -82,6 +82,8 @@ class Game:
         self.game_over = False
         self.played_die_sound = False
 
+        self.penality = 0
+
         # sounds (load safely)
         def _load_sound(path):
             try:
