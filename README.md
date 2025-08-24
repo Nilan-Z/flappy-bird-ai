@@ -14,6 +14,7 @@ This project uses TensorFlow and a custom Pygame environment.
 - Installation
 - Configuration
 - Usage
+- AI Architecture
 - Example
 - License
 
@@ -106,6 +107,33 @@ Notes:
 - Training logs show episode, score, reward, epsilon, and steps.
 - Trained models are saved automatically.
 - For lower-performance machines, reduce memory_size or batch_size to prevent crashes.
+
+---
+
+## 🧠 AI Architecture
+
+The AI is a Deep Q-Network (DQN) implemented with TensorFlow/Keras.
+Input: game state (bird position, velocity, distance to pipes, etc.)
+Hidden layers: 2 fully connected layers with 64 neurons (ReLU)
+Output: Q-values for possible actions (flap or do nothing)
+Training: experience replay (deque) + epsilon-greedy exploration
+
+Simplified code:
+
+```python
+model = tf.keras.Sequential([
+    layers.Dense(64, input_dim=state_size, activation='relu'),
+    layers.Dense(64, activation='relu'),
+    layers.Dense(action_size, activation='linear')
+])
+model.compile(
+    loss=tf.keras.losses.Huber(),
+    optimizer=tf.keras.optimizers.Adam(learning_rate=0.001)
+)
+```
+
+
+The agent explores with an ε-greedy strategy, stores transitions in replay memory, and trains with mini-batches to stabilize learning.
 
 ---
 
