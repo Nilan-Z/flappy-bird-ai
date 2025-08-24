@@ -36,41 +36,24 @@ class Game:
         self.pipes = []
         self.pipe_spawn_timer = 0
 
-        # load images with safe fallbacks (avoid crashing if load fails)
-        def _load_image(path, alpha=True):
-            try:
-                img = pygame.image.load(path)
-                return img.convert_alpha() if alpha else img.convert()
-            except Exception:
-                # return a plain surface as fallback
-                fallback = pygame.Surface((1, 1), flags=pygame.SRCALPHA if alpha else 0)
-                return fallback
-
         # base (ground)
-        self.base_sprite = _load_image("assets/sprites/base.png", alpha=True)
+        self.base_sprite = pygame.image.load("assets/sprites/base.png").convert_alpha()
         self.base_scroll_speed = 3
         self.base_width = self.base_sprite.get_width()
         self.base_x = 0
         self.base_y = self.screen_height - self.base_sprite.get_height() + 20
 
         # background
-        self.bg_original = _load_image("assets/sprites/background-day.png", alpha=False)
+        bg_original = pygame.image.load("assets/sprites/background-day.png").convert()
         self.bg_scaled_height = int(self.screen_height * 1.2)
-        try:
-            self.background = pygame.transform.scale(self.bg_original, (self.screen_width, self.bg_scaled_height))
-        except Exception:
-            # fallback to a plain fill surface
-            self.background = pygame.Surface((self.screen_width, self.bg_scaled_height))
+        self.background = pygame.transform.scale(bg_original, (self.screen_width, self.bg_scaled_height))
 
         # UI: game over and get-ready
-        self.game_over_sprite = _load_image("assets/sprites/gameover.png", alpha=True)
-        self.get_ready_original = _load_image("assets/sprites/message.png", alpha=True)
-        gr_w = self.get_ready_original.get_width()
-        gr_h = self.get_ready_original.get_height()
-        try:
-            self.get_ready_sprite = pygame.transform.scale(self.get_ready_original, (int(gr_w * 1.4), int(gr_h * 1.4)))
-        except Exception:
-            self.get_ready_sprite = self.get_ready_original
+        self.game_over_sprite = pygame.image.load("assets/sprites/gameover.png").convert_alpha()
+        get_ready_original = pygame.image.load("assets/sprites/message.png").convert_alpha()
+        gr_w = get_ready_original.get_width()
+        gr_h = get_ready_original.get_height()
+        self.get_ready_sprite = pygame.transform.scale(get_ready_original, (int(gr_w * 1.4), int(gr_h * 1.4)))
 
         # score
         self.score = Score()
@@ -85,16 +68,10 @@ class Game:
         self.penality = 0
         self.reward = 0
 
-        # sounds (load safely)
-        def _load_sound(path):
-            try:
-                return pygame.mixer.Sound(path)
-            except Exception:
-                return None
-
-        self.sfx_die = _load_sound("assets/audio/die.wav")
-        self.sfx_jump = _load_sound("assets/audio/wing.wav")
-        self.sfx_point = _load_sound("assets/audio/point.wav")
+        # sounds
+        self.sfx_die = pygame.mixer.Sound("assets/audio/die.wav")
+        self.sfx_jump = pygame.mixer.Sound("assets/audio/wing.wav")
+        self.sfx_point = pygame.mixer.Sound("assets/audio/point.wav")
 
     def reset(self):
         """Reset game objects to start a new round."""
@@ -114,10 +91,7 @@ class Game:
             (reward(float), done(bool))
         """
         # draw background first
-        try:
-            self.surface.blit(self.background, (0, -60))
-        except Exception:
-            pass
+        self.surface.blit(self.background, (0, -60))
 
         # pre-start screen for human: show "get ready"
         if self.mode == "human" and self.waiting_to_start:
@@ -136,24 +110,15 @@ class Game:
             self.draw_game_over()
             pygame.time.wait(3000)
 
-
             if self.current_score > self.best_score:
                 self.best_score = self.current_score
                 self.save_best_score()
 
-            if not self.played_die_sound and self.sfx_die:
-                try:
-                    self.sfx_die.play()
-                except Exception:
-                    pass
+            if not self.played_die_sound:
+                self.sfx_die.play()
                 self.played_die_sound = True
 
-            # draw score
-            try:
-                self.score.draw(self.surface, self.current_score, self.screen_width // 2, self.screen_height // 2)
-            except Exception:
-                pass
-
+            self.score.draw(self.surface, self.current_score, self.screen_width // 2, self.screen_height // 2)
             return -1.0, True
 
         # main gameplay loop
@@ -173,10 +138,7 @@ class Game:
         self.draw_base()
 
         # score HUD
-        try:
-            self.score.draw(self.surface, self.current_score, self.screen_width // 2, 30)
-        except Exception:
-            pass
+        self.score.draw(self.surface, self.current_score, self.screen_width // 2, 30)
 
         # collisions
         if self.check_collision():
@@ -195,11 +157,7 @@ class Game:
                 pipe.passed = True
                 self.current_score += 1
                 self.reward = 10
-                if self.sfx_point:
-                    try:
-                        self.sfx_point.play()
-                    except Exception:
-                        pass
+                self.sfx_point.play()
         self.pipes = [p for p in self.pipes if p.x + p.width > 0]
         return self.reward
 
@@ -216,20 +174,14 @@ class Game:
 
     def draw_base(self):
         """Tile the base sprite across the bottom."""
-        try:
-            for i in range((self.screen_width // self.base_width) + 2):
-                self.surface.blit(self.base_sprite, (self.base_x + i * self.base_width, self.base_y))
-        except Exception:
-            pass
+        for i in range((self.screen_width // self.base_width) + 2):
+            self.surface.blit(self.base_sprite, (self.base_x + i * self.base_width, self.base_y))
 
     def draw_game_over(self):
         """Draw the Game Over banner centered."""
-        try:
-            x = (self.screen_width - self.game_over_sprite.get_width()) // 2
-            y = self.screen_height // 4
-            self.surface.blit(self.game_over_sprite, (x, y))
-        except Exception:
-            pass
+        x = (self.screen_width - self.game_over_sprite.get_width()) // 2
+        y = self.screen_height // 4
+        self.surface.blit(self.game_over_sprite, (x, y))
 
     def check_collision(self):
         """Return True if bird collides with ground, ceiling or pipes."""
@@ -249,12 +201,9 @@ class Game:
 
     def draw_get_ready(self):
         """Draw the 'Get Ready' prompt centered near the top."""
-        try:
-            x = (self.screen_width - self.get_ready_sprite.get_width()) // 2
-            y = self.screen_height // 8
-            self.surface.blit(self.get_ready_sprite, (x, y))
-        except Exception:
-            pass
+        x = (self.screen_width - self.get_ready_sprite.get_width()) // 2
+        y = self.screen_height // 8
+        self.surface.blit(self.get_ready_sprite, (x, y))
 
     def spawn_pipe(self):
         """Create a new pipe at right edge."""
