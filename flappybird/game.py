@@ -83,6 +83,7 @@ class Game:
         self.played_die_sound = False
 
         self.penality = 0
+        self.reward = 0
 
         # sounds (load safely)
         def _load_sound(path):
@@ -187,17 +188,20 @@ class Game:
 
     def update_pipes(self):
         """Move pipes left, mark passed pipes and remove off-screen ones."""
+        self.reward = 0
         for pipe in self.pipes:
             pipe.update()
             if not pipe.passed and pipe.x + (pipe.width / 4) < self.bird.x:
                 pipe.passed = True
                 self.current_score += 1
+                self.reward = 10
                 if self.sfx_point:
                     try:
                         self.sfx_point.play()
                     except Exception:
                         pass
         self.pipes = [p for p in self.pipes if p.x + p.width > 0]
+        return self.reward
 
     def draw_pipes(self):
         """Draw all pipes to the surface."""
