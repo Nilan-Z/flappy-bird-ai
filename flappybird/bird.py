@@ -1,5 +1,6 @@
 import pygame
 import random
+
 class Bird:
     def __init__(self, mode):
         self.mode = mode
@@ -7,7 +8,7 @@ class Bird:
         # Select bird color randomly
         self.sprites_color = random.choice(["red", "blue", "yellow"])
 
-        # Load base sprites depending on color and mode
+        # Load base sprites
         sprite_paths = {
             "red": ["assets/sprites/redbird-upflap.png",
                     "assets/sprites/redbird-midflap.png",
@@ -20,106 +21,89 @@ class Bird:
                        "assets/sprites/yellowbird-downflap.png"]
         }
 
+        # Load and convert sprites
         base_sprites = []
         for path in sprite_paths[self.sprites_color]:
             img = pygame.image.load(path)
-            if mode == "human":
-                img = img.convert_alpha()
-            else:
-                img = img.convert()
+            img = img.convert_alpha() if mode == "human" else img.convert()
             base_sprites.append(img)
 
-        # Scale sprites by 1.5x
-        self.sprites = []
-        for sprite in base_sprites:
-            width = sprite.get_width()
-            height = sprite.get_height()
-            scaled_sprite = pygame.transform.scale(sprite, (int(width * 1.5), int(height * 1.5)))
-            self.sprites.append(scaled_sprite)
+        # Scale sprites
+        self.sprites = [pygame.transform.scale(sprite, (int(sprite.get_width()*1.5), int(sprite.get_height()*1.5)))
+                        for sprite in base_sprites]
 
         # Animation control
         self.current_sprite_index = 0
         self.animation_frame = 0
 
-        # Initial position
+        # Position
         self.x = 100
         self.y = 235
 
-        # Physics settings
+        # Physics
         self.normal_gravity = 0.2
         self.heavy_gravity = 0.3
         self.gravity = self.normal_gravity
         self.jump_force = -5.5
         self.velocity = 0
 
-        # Rotation behavior
+        # Rotation
         self.angle = 0
         self.max_fall_speed = 14
         self.rotation_speed = 10
         self.fall_rotation_threshold = 5
 
     def jump(self):
-        # Apply jump impulse
+        # Apply jump
         self.velocity = self.jump_force
         self.angle = 25
         self.gravity = self.normal_gravity
 
     def update(self):
-        # Switch to heavier gravity when falling
+        # Gravity adjustment
         if self.velocity > 0:
             self.gravity = self.heavy_gravity
 
-        # Update velocity and clamp max fall speed
+        # Update velocity
         self.velocity += self.gravity
-        if self.velocity > self.max_fall_speed:
-            self.velocity = self.max_fall_speed
+        self.velocity = min(self.velocity, self.max_fall_speed)
 
-        # Apply vertical movement
+        # Move vertically
         self.y += self.velocity
 
-        # Adjust rotation based on movement
+        # Rotation adjustment
         if self.velocity < 0:
             self.angle = min(self.angle + self.rotation_speed, 25)
         elif self.velocity > self.fall_rotation_threshold:
-            self.angle = max(self.angle - self.rotation_speed * 1.5, -85)
+            self.angle = max(self.angle - self.rotation_speed*1.5, -85)
 
     def draw(self, surface):
-        # Cycle sprite every 6 frames
+        # Animate sprite
         self.animation_frame += 1
         if self.animation_frame == 6:
             self.animation_frame = 0
             self.current_sprite_index = (self.current_sprite_index + 1) % len(self.sprites)
 
-        # Rotate and draw sprite
+        # Rotate and render sprite
         sprite = self.sprites[self.current_sprite_index]
         rotated_sprite = pygame.transform.rotate(sprite, self.angle)
-        rect = rotated_sprite.get_rect(center=(self.x + sprite.get_width() // 2,
-                                               self.y + sprite.get_height() // 2))
+        rect = rotated_sprite.get_rect(center=(self.x + sprite.get_width()//2,
+                                               self.y + sprite.get_height()//2))
         surface.blit(rotated_sprite, rect.topleft)
 
     def get_rect(self):
-        # Return hitbox of current sprite
+        # Return hitbox
         sprite = self.sprites[self.current_sprite_index]
         return pygame.Rect(self.x, self.y, sprite.get_width(), sprite.get_height())
-    
+
     def reset(self):
-        # Animation control
+        # Reset animation
         self.current_sprite_index = 0
         self.animation_frame = 0
 
-        # Initial position
+        # Reset position and physics
         self.x = 100
         self.y = 235
-
-        # Physics settings
-        self.normal_gravity = 0.2
-        self.heavy_gravity = 0.3
         self.gravity = self.normal_gravity
-        self.jump_force = -5.5
         self.velocity = 0
-
-        # Rotation behavior
         self.angle = 0
-        self.max_fall_speed = 14
-        self.rotation_speed = 10
-        self.fall_rotation_threshold = 5
