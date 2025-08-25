@@ -3,77 +3,62 @@ import json
 from flappybird.bird import Bird
 from flappybird.pipe import Pipe
 from flappybird.score import Score
+from typing import Optional, Tuple
 
 
 class Game:
-    def __init__(self, mode, surface=None, width=423, height=590, headless=False):
+    def __init__(self, mode: str, surface: Optional[pygame.Surface] = None,
+                 width: int = 423, height: int = 590, headless: bool = False):
         """
         Core game controller.
 
         Args:
             mode (str): "human" or "ai".
             surface (pygame.Surface|None): display surface (None if headless).
-            width (int): screen width (used if headless or surface is None).
+            width (int): screen width.
             height (int): screen height.
-            headless (bool): when True, draw into an off-screen surface.
+            headless (bool): draw into an off-screen surface if True.
         """
         self.mode = mode
         self.headless = bool(headless)
-
-        # screen size
         self.screen_width = width
         self.screen_height = height
+        self.surface = surface if surface and not self.headless else pygame.Surface((width, height))
 
-        # surface: use provided surface when available and not running headless
-        if not self.headless and surface is not None:
-            self.surface = surface
-        else:
-            # off-screen surface for headless mode or missing surface
-            self.surface = pygame.Surface((self.screen_width, self.screen_height))
-
-        # game objects
         self.bird = Bird(mode)
         self.pipes = []
         self.pipe_spawn_timer = 0
 
-        # base (ground)
-        self.base_sprite = pygame.image.load("assets/sprites/base.png").convert_alpha()
+        self.base_sprite = self._load_image("assets/sprites/base.png", alpha=True)
         self.base_scroll_speed = 3
         self.base_width = self.base_sprite.get_width()
         self.base_x = 0
         self.base_y = self.screen_height - self.base_sprite.get_height() + 20
 
-        # background
-        bg_original = pygame.image.load("assets/sprites/background-day.png").convert()
+        bg_original = self._load_image("assets/sprites/background-day.png", alpha=False)
         self.bg_scaled_height = int(self.screen_height * 1.2)
         self.background = pygame.transform.scale(bg_original, (self.screen_width, self.bg_scaled_height))
 
-        # UI: game over and get-ready
-        self.game_over_sprite = pygame.image.load("assets/sprites/gameover.png").convert_alpha()
-        get_ready_original = pygame.image.load("assets/sprites/message.png").convert_alpha()
-        gr_w = get_ready_original.get_width()
-        gr_h = get_ready_original.get_height()
+        self.game_over_sprite = self._load_image("assets/sprites/gameover.png", alpha=True)
+        get_ready_original = self._load_image("assets/sprites/message.png", alpha=True)
+        gr_w, gr_h = get_ready_original.get_size()
         self.get_ready_sprite = pygame.transform.scale(get_ready_original, (int(gr_w * 1.4), int(gr_h * 1.4)))
 
-        # score
         self.score = Score()
         self.current_score = 0
         self.best_score = self.load_best_score()
 
-        # game state
         self.waiting_to_start = True
         self.game_over = False
         self.played_die_sound = False
-
         self.penality = 0
         self.reward = 0
 
-        # sounds
-        self.sfx_die = pygame.mixer.Sound("assets/audio/die.wav")
-        self.sfx_jump = pygame.mixer.Sound("assets/audio/wing.wav")
-        self.sfx_point = pygame.mixer.Sound("assets/audio/point.wav")
+        self.sfx_die = self._load_sound("assets/audio/die.wav")
+        self.sfx_jump = self._load_sound("assets/audio/wing.wav")
+        self.sfx_point = self._load_sound("assets/audio/point.wav")
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset game objects to start a new round."""
         self.bird.reset()
         self.pipes.clear()
@@ -83,17 +68,10 @@ class Game:
         self.played_die_sound = False
         self.pipe_spawn_timer = 0
 
-    def update(self):
-        """
-        Run one frame of game logic and rendering.
-
-        Returns:
-            (reward(float), done(bool))
-        """
-        # draw background first
+    def update(self) -> Tuple[float, bool]:
+        """Run one frame of game logic and rendering."""
         self.surface.blit(self.background, (0, -60))
 
-        # pre-start screen for human: show "get ready"
         if self.mode == "human" and self.waiting_to_start:
             self.bird.jump()
             self.draw_get_ready()
@@ -101,8 +79,7 @@ class Game:
             self.draw_base()
             return 0.0, False
 
-        # game over handling
-        if self.game_over and self.mode == 'human':
+        if self.game_over and self.mode == "human":
             self.bird.update()
             self.bird.draw(self.surface)
             self.draw_pipes()
@@ -114,33 +91,26 @@ class Game:
                 self.best_score = self.current_score
                 self.save_best_score()
 
-            if not self.played_die_sound:
+            if not self.played_die_sound and self.sfx_die:
                 self.sfx_die.play()
                 self.played_die_sound = True
 
             self.score.draw(self.surface, self.current_score, self.screen_width // 2, self.screen_height // 2)
             return -1.0, True
 
-        # main gameplay loop
         self.pipe_spawn_timer += 1
         if self.pipe_spawn_timer >= 80:
             self.spawn_pipe()
             self.pipe_spawn_timer = 0
 
-        # bird
         self.bird.update()
         self.bird.draw(self.surface)
-
-        # pipes and base
         self.update_pipes()
         self.draw_pipes()
         self.update_base()
         self.draw_base()
-
-        # score HUD
         self.score.draw(self.surface, self.current_score, self.screen_width // 2, 30)
 
-        # collisions
         if self.check_collision():
             self.game_over = True
             self.bird.velocity = 0
@@ -148,8 +118,8 @@ class Game:
 
         return 0.1, False
 
-    def update_pipes(self):
-        """Move pipes left, mark passed pipes and remove off-screen ones."""
+    def update_pipes(self) -> float:
+        """Move pipes left, mark passed pipes, and remove off-screen ones."""
         self.reward = 0
         for pipe in self.pipes:
             pipe.update()
@@ -157,34 +127,35 @@ class Game:
                 pipe.passed = True
                 self.current_score += 1
                 self.reward = 10
-                self.sfx_point.play()
+                if self.sfx_point:
+                    self.sfx_point.play()
         self.pipes = [p for p in self.pipes if p.x + p.width > 0]
         return self.reward
 
-    def draw_pipes(self):
-        """Draw all pipes to the surface."""
+    def draw_pipes(self) -> None:
+        """Draw all pipes."""
         for pipe in self.pipes:
             pipe.draw(self.surface)
 
-    def update_base(self):
+    def update_base(self) -> None:
         """Scroll base texture horizontally."""
         self.base_x -= self.base_scroll_speed
         if self.base_x <= -self.base_width:
             self.base_x = 0
 
-    def draw_base(self):
+    def draw_base(self) -> None:
         """Tile the base sprite across the bottom."""
         for i in range((self.screen_width // self.base_width) + 2):
             self.surface.blit(self.base_sprite, (self.base_x + i * self.base_width, self.base_y))
 
-    def draw_game_over(self):
+    def draw_game_over(self) -> None:
         """Draw the Game Over banner centered."""
         x = (self.screen_width - self.game_over_sprite.get_width()) // 2
         y = self.screen_height // 4
         self.surface.blit(self.game_over_sprite, (x, y))
 
-    def check_collision(self):
-        """Return True if bird collides with ground, ceiling or pipes."""
+    def check_collision(self) -> bool:
+        """Return True if bird collides with ground, ceiling, or pipes."""
         self.penality = 0
         bird_rect = self.bird.get_rect()
         if bird_rect.bottom >= self.base_y:
@@ -199,18 +170,18 @@ class Game:
                 return True
         return False
 
-    def draw_get_ready(self):
+    def draw_get_ready(self) -> None:
         """Draw the 'Get Ready' prompt centered near the top."""
         x = (self.screen_width - self.get_ready_sprite.get_width()) // 2
         y = self.screen_height // 8
         self.surface.blit(self.get_ready_sprite, (x, y))
 
-    def spawn_pipe(self):
+    def spawn_pipe(self) -> None:
         """Create a new pipe at right edge."""
         self.pipes.append(Pipe(x=self.screen_width))
 
-    def load_best_score(self):
-        """Load best score from disk (safe)."""
+    def load_best_score(self) -> int:
+        """Load best score from disk safely."""
         try:
             with open("flappybird/score.json", "r") as f:
                 data = json.load(f)
@@ -218,10 +189,27 @@ class Game:
         except Exception:
             return 0
 
-    def save_best_score(self):
-        """Save best score to disk (safe)."""
+    def save_best_score(self) -> None:
+        """Save best score to disk safely."""
         try:
             with open("flappybird/score.json", "w") as f:
                 json.dump({"best_score": self.best_score}, f)
         except Exception:
             pass
+
+    @staticmethod
+    def _load_image(path: str, alpha: bool = True) -> pygame.Surface:
+        """Load an image safely; fallback to 1x1 surface if missing."""
+        try:
+            img = pygame.image.load(path)
+            return img.convert_alpha() if alpha else img.convert()
+        except Exception:
+            return pygame.Surface((1, 1), flags=pygame.SRCALPHA if alpha else 0)
+
+    @staticmethod
+    def _load_sound(path: str) -> Optional[pygame.mixer.Sound]:
+        """Load a sound safely; return None if missing."""
+        try:
+            return pygame.mixer.Sound(path)
+        except Exception:
+            return None
