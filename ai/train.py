@@ -1,58 +1,49 @@
 import numpy as np
 import pygame
+import yaml
 from ai.flappybird_env import FlappyBirdEnv
 from ai.dqn_agent import DQNAgent
 from datetime import datetime
 
-
-
 class TrainAgent:
     def __init__(self, headless: bool = False):
-        """
-        Training loop manager for the Flappy Bird DQN agent.
-
-        Args:
-            headless: If True, training runs without rendering a window 
-                      (faster training, no Pygame events).
-        """
+        # Load configuration
+        with open("config.yaml", "r") as f:
+            cfg = yaml.safe_load(f)
+        self.save_every_n_episodes = int(cfg.get("save_every_n_episodes", 50))
         self.headless = headless
 
-        # State (input) and action (output) dimensions for the agent
+        # State (input) and action (output) dimensions
         self.state_size = 5
         self.action_size = 2
 
-        # Initialize Flappy Bird environment
+        # Initialize environment and agent
         self.env = FlappyBirdEnv(mode="ai", headless=self.headless)
-
-        # Initialize the Deep Q-Network (DQN) agent
         self.agent = DQNAgent(self.state_size, self.action_size)
 
-        # Pygame setup only if rendering is enabled
+        # Initialize Pygame window if not headless
         if not self.headless:
             pygame.init()
             pygame.display.set_caption("Flappy Bird AI Training")
 
-        # Metrics
+        # Training metrics
         self.total_reward = 0.0
         self.done = False
         self.step_count = 0
 
     def train(self, episodes: int = 500):
-        """
-        Run the training loop for the specified number of episodes.
-        """
+        # Run training loop for the given number of episodes
         self.episodes = episodes
         
         for self.episode_idx in range(self.episodes):
-            # Reset environment at start of each episode
+            # Reset environment at the start of each episode
             self.state = np.array(self.env.reset(), dtype=np.float32)
             self.total_reward = 0.0
             self.done = False
             self.step_count = 0
 
-            # Episode loop
             while not self.done:
-                # Handle rendering and user events only if not headless
+                # Handle Pygame events if rendering is enabled
                 if not self.headless:
                     for self.event in pygame.event.get():
                         if self.event.type == pygame.QUIT:
@@ -61,10 +52,8 @@ class TrainAgent:
                             return
                     self.env.render()
 
-                # Select action (epsilon-greedy policy)
+                # Select action and perform environment step
                 self.action = self.agent.act(self.state)
-
-                # Perform action in environment
                 self.next_state, self.reward, self.done, _ = self.env.step(self.action)
                 self.next_state = np.array(self.next_state, dtype=np.float32)
 
@@ -76,8 +65,8 @@ class TrainAgent:
                 self.state = self.next_state
                 self.total_reward += self.reward
                 self.step_count += 1
-                
-            # Decay exploration rate (epsilon) at the end of each episode
+
+            # Decay exploration rate epsilon
             if self.agent.epsilon > self.agent.epsilon_min:
                 self.agent.epsilon *= self.agent.epsilon_decay
 
@@ -90,30 +79,23 @@ class TrainAgent:
                 f"Steps: {self.step_count}"
             )
 
-            # Save agent model weights
-            self.agent.save()
+            # Save model every N episodes or at the last episode
+            if (self.episode_idx + 1) % self.save_every_n_episodes == 0 or self.episode_idx == self.episodes - 1:
+                self.agent.save()
 
-        # Cleanup resources after training completes
+        # Cleanup after training
         self.env.close()
         if not self.headless:
             pygame.quit()
     
     def log_message(self, message: str, log_file: str = "training.log"):
-        """
-        Append a message to a log file with a timestamp.
-
-        Args:
-            message (str): The text to log.
-            log_file (str): Path to the log file (default: training.log).
-        """
+        # Append message to log file with timestamp and print to console
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         with open(log_file, "a") as f:
             f.write(f"[{timestamp}] {message}\n")
-        print(f"[{timestamp}] {message}")  # garde aussi l'affichage console
+        print(f"[{timestamp}] {message}")
 
 if __name__ == "__main__":
-    # Example usage:
-    # - headless=True  → fast training without rendering
-    # - headless=False → render game window during training
+    # Exemple d'entraînement sans affichage
     trainer = TrainAgent(headless=True)
     trainer.train(episodes=500)
