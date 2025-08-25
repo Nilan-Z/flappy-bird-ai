@@ -2,6 +2,8 @@ import numpy as np
 import pygame
 from ai.flappybird_env import FlappyBirdEnv
 from ai.dqn_agent import DQNAgent
+from datetime import datetime
+
 
 
 class TrainAgent:
@@ -79,8 +81,8 @@ class TrainAgent:
             if self.agent.epsilon > self.agent.epsilon_min:
                 self.agent.epsilon *= self.agent.epsilon_decay
 
-            # Log training progress
-            print(
+            # Log episode results
+            self.log_message(
                 f"Episode {self.episode_idx + 1}/{self.episodes} | "
                 f"Score: {self.env.game.current_score} | "
                 f"Reward: {self.total_reward:.2f} | "
@@ -95,7 +97,19 @@ class TrainAgent:
         self.env.close()
         if not self.headless:
             pygame.quit()
+    
+    def log_message(self, message: str, log_file: str = "training.log"):
+        """
+        Append a message to a log file with a timestamp.
 
+        Args:
+            message (str): The text to log.
+            log_file (str): Path to the log file (default: training.log).
+        """
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open(log_file, "a") as f:
+            f.write(f"[{timestamp}] {message}\n")
+        print(f"[{timestamp}] {message}")  # garde aussi l'affichage console
 
 if __name__ == "__main__":
     # Example usage:
