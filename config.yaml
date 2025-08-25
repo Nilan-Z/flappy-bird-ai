@@ -1,10 +1,11 @@
-screen_width: 423       # Width of the game window 
-screen_height: 590      # Height of the game window
-pipe_gap: 150           # Space between pipes
-memory_size: 20000      # Replay memory size for DQN
-batch_size: 64          # Training batch size
-learning_rate: 0.001    # DQN learning rate
-gamma: 0.99             # Discount factor
-epsilon_start: 1.0      # Starting exploration rate
-epsilon_min: 0.01       # Minimum exploration rate
-epsilon_decay: 0.95    # Decay rate per step
+screen_width: 423            # Width of the game window 
+screen_height: 590           # Height of the game window
+pipe_gap: 150                # Space between pipes
+memory_size: 20000           # Replay memory size for DQN
+save_every_n_episodes: 5     # save model every N episodes
+batch_size: 64               # Training batch size
+learning_rate: 0.001         # DQN learning rate
+gamma: 0.99                  # Discount factor
+epsilon_start: 1.0           # Starting exploration rate
+epsilon_min: 0.01            # Minimum exploration rate
+epsilon_decay: 0.95          # Decay rate per step
