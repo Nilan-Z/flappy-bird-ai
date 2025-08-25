@@ -11,6 +11,7 @@ This project uses TensorFlow and a custom Pygame environment.
 ## 📚 Table of Contents
 
 - Features
+- Note
 - Installation
 - Configuration
 - Usage
@@ -27,6 +28,17 @@ This project uses TensorFlow and a custom Pygame environment.
 - Manual mode to play the game yourself
 - Configurable training and game parameters via `config.yaml`
 - Lightweight, minimal, and easily extendable codebase
+
+---
+
+## ⚠️ Note
+
+The AI model included in this repository is **not pre-trained**. 
+You need to run the training script before the AI can play effectively:
+
+```bash
+python main.py ai --train 5000
+```
 
 ---
 
@@ -141,7 +153,7 @@ The agent explores with an ε-greedy strategy, stores transitions in replay memo
 
 AI training log:
 
-    Episode 1/1000 | Score: 0 | Reward: -5.30 | Epsilon: 1.00 | Steps: 48
+    Episode 1/1000 | Score: 120 | Reward: 1453.00 | Epsilon: 0.95 | Steps: 48
 
 Adjust parameters in config.yaml to improve performance.
 
