@@ -63,7 +63,10 @@ class Game:
         self.bird.reset()
         self.pipes.clear()
         self.current_score = 0
-        self.waiting_to_start = False
+        if self.mode == "ai":
+            self.waiting_to_start = False
+        else:
+            self.waiting_to_start = True
         self.game_over = False
         self.played_die_sound = False
         self.pipe_spawn_timer = 0
@@ -86,6 +89,7 @@ class Game:
             self.draw_base()
             self.draw_game_over()
             pygame.time.wait(3000)
+            self.reset()
 
             if self.current_score > self.best_score:
                 self.best_score = self.current_score
