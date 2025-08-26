@@ -64,16 +64,17 @@ pip install -r requirements.txt
 Game and AI parameters are defined in config.yaml:
 
 ```yaml
-screen_width: 288       # Width of the game window
-screen_height: 512      # Height of the game window
-pipe_gap: 100           # Space between pipes
-memory_size: 20000      # Replay memory size for DQN
-batch_size: 64          # Training batch size
-learning_rate: 0.001    # DQN learning rate
-gamma: 0.99             # Discount factor
-epsilon_start: 1.0      # Starting exploration rate
-epsilon_min: 0.01       # Minimum exploration rate
-epsilon_decay: 0.995    # Decay rate per step
+screen_width: 288           # Width of the game window
+screen_height: 512          # Height of the game window
+pipe_gap: 100               # Space between pipes
+memory_size: 20000          # Replay memory size for DQN
+save_every_n_episodes: 5    # save model every N episodes
+batch_size: 64              # Training batch size
+learning_rate: 0.001        # DQN learning rate
+gamma: 0.99                 # Discount factor
+epsilon_start: 1.0          # Starting exploration rate
+epsilon_min: 0.01           # Minimum exploration rate
+epsilon_decay: 0.995        # Decay rate per step
 ```
 
 Adjust these values to match your system and training goals.
