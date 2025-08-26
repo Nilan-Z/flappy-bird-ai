@@ -94,7 +94,7 @@ class Bird:
     def get_rect(self):
         # Return hitbox
         sprite = self.sprites[self.current_sprite_index]
-        return pygame.Rect(self.x, self.y, sprite.get_width(), sprite.get_height())
+        return pygame.Rect(self.x, self.y, sprite.get_width() - 10, sprite.get_height() - 10)
 
     def reset(self):
         # Reset animation
