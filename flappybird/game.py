@@ -57,6 +57,8 @@ class Game:
         self.sfx_die = self._load_sound("assets/audio/die.wav")
         self.sfx_jump = self._load_sound("assets/audio/wing.wav")
         self.sfx_point = self._load_sound("assets/audio/point.wav")
+        self.sfx_swoosh = self._load_sound("assets/audio/swoosh.wav")
+        self.sfx_hit = self._load_sound("assets/audio/hit.wav")
 
     def reset(self) -> None:
         """Reset game objects to start a new round."""
@@ -116,6 +118,7 @@ class Game:
         self.score.draw(self.surface, self.current_score, self.screen_width // 2, 30)
 
         if self.check_collision():
+            self.sfx_hit.play()
             self.game_over = True
             self.bird.velocity = 0
             return -10.0 + self.penality, True
