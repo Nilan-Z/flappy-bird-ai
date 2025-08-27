@@ -90,7 +90,6 @@ class Game:
             self.draw_pipes()
             self.draw_base()
             self.draw_game_over()
-            pygame.time.wait(3000)
             self.reset()
 
             if self.current_score > self.best_score:
@@ -102,7 +101,9 @@ class Game:
                 self.played_die_sound = True
 
             self.score.draw(self.surface, self.current_score, self.screen_width // 2, self.screen_height // 2)
+            pygame.time.wait(3000)
             return -1.0, True
+        
 
         self.pipe_spawn_timer += 1
         if self.pipe_spawn_timer >= 80:
