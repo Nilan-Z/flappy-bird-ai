@@ -92,7 +92,7 @@ class Game:
             self.draw_base()
             self.draw_game_over()
 
-            self.score.draw(self.surface, self.current_score, self.screen_width // 2, self.screen_height // 2)
+            self.score.draw(self.surface, self.current_score, self.screen_width // 2, self.screen_height // 3)
 
             if self.check_collision():
                 self.sfx_hit.play()
@@ -174,7 +174,7 @@ class Game:
     def draw_game_over(self) -> None:
         """Draw the Game Over banner centered."""
         x = (self.screen_width - self.game_over_sprite.get_width()) // 2
-        y = self.screen_height // 4
+        y = self.screen_height // 5
         self.surface.blit(self.game_over_sprite, (x, y))
 
     def check_collision(self) -> bool:
