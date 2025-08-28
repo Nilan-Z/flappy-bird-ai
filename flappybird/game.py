@@ -94,6 +94,14 @@ class Game:
 
             self.score.draw(self.surface, self.current_score, self.screen_width // 2, self.screen_height // 2)
 
+            if self.check_collision():
+                self.sfx_hit.play()
+                self.game_over = True
+                self.death_time = pygame.time.get_ticks()
+                self.bird.velocity = 0
+                return -10.0 + self.penality, True
+
+
             if self.current_score > self.best_score:
                 self.best_score = self.current_score
                 self.save_best_score()
@@ -175,6 +183,7 @@ class Game:
         bird_rect = self.bird.get_rect()
         if bird_rect.bottom >= self.base_y:
             self.penality = -100
+            self.bird.y = self.base_y - bird_rect.height
             return True
         if bird_rect.top <= 0:
             self.penality = -100
