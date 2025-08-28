@@ -85,36 +85,44 @@ class Game:
             self.draw_base()
             return 0.0, False
 
+        if self.mode == "human" and self.waiting_to_start:
+            self.draw_get_ready()
+            self.update_base()
+            self.draw_base()
+            return 0.0, False
+
+        # Game Over screen
         if self.game_over and self.mode == "human":
+            if self.death_time is None:
+                self.death_time = pygame.time.get_ticks()
+
             self.bird.update()
-            self.bird.draw(self.surface)
+
+            # Stop bird on ground
+            if self.bird.get_rect().bottom >= self.base_y:
+                self.bird.y = self.base_y - self.bird.get_rect().height
+                self.bird.velocity = 0
+
+            # Draw everything
             self.draw_pipes()
+            self.bird.draw(self.surface)
             self.draw_base()
             self.draw_game_over()
-
             self.score.draw(self.surface, self.current_score, self.screen_width // 2, self.screen_height // 3)
 
-            if self.check_collision():
-                self.sfx_hit.play()
-                self.game_over = True
-                self.death_time = pygame.time.get_ticks()
-                self.bird.velocity = 0
-                return -10.0 + self.penality, True
-
-
+            # Save best score
             if self.current_score > self.best_score:
                 self.best_score = self.current_score
                 self.save_best_score()
 
+            # Play die sound once
             if not self.played_die_sound and self.sfx_die:
                 self.sfx_die.play()
                 self.played_die_sound = True
 
-            if self.death_time and pygame.time.get_ticks() - self.death_time > 3000:
+            # After 3s reset
+            if pygame.time.get_ticks() - self.death_time > 3000:
                 self.reset()
-                self.waiting_to_start = True
-                self.game_over = False
-                self.death_time = None
 
             return -1.0, True
         
@@ -125,20 +133,22 @@ class Game:
             self.pipe_spawn_timer = 0
 
         self.bird.update()
-        self.bird.draw(self.surface)
         self.update_pipes()
         self.draw_pipes()
+        self.bird.draw(self.surface)
         self.update_base()
         self.draw_base()
         self.score.draw(self.surface, self.current_score, self.screen_width // 2, 30)
 
+        self.death_time = pygame.time.get_ticks()
+
         if self.check_collision():
-            self.sfx_hit.play()
+            if self.sfx_hit:
+                self.sfx_hit.play()
             self.game_over = True
             self.death_time = pygame.time.get_ticks()
-            self.bird.velocity = 0
             return -10.0 + self.penality, True
-
+        
         return 0.1, False
 
     def update_pipes(self) -> float:
