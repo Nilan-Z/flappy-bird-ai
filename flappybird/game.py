@@ -39,7 +39,12 @@ class Game:
         self.bg_scaled_height = int(self.screen_height * 1.2)
         self.background = pygame.transform.scale(bg_original, (self.screen_width, self.bg_scaled_height))
 
-        self.game_over_sprite = self._load_image("assets/sprites/gameover.png", alpha=True)
+        self.game_over_sprite_original = self._load_image("assets/sprites/gameover.png", alpha=True)
+        self.game_over_sprite = pygame.transform.scale(
+            self.game_over_sprite_original,
+            (int(self.game_over_sprite_original.get_width() * 1.4),
+             int(self.game_over_sprite_original.get_height() * 1.4))
+        )
         get_ready_original = self._load_image("assets/sprites/message.png", alpha=True)
         gr_w, gr_h = get_ready_original.get_size()
         self.get_ready_sprite = pygame.transform.scale(get_ready_original, (int(gr_w * 1.4), int(gr_h * 1.4)))
