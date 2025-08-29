@@ -27,7 +27,7 @@ def run_human():
     pygame.display.set_caption("Flappy Bird - Human Mode")
 
     try:
-        icon = pygame.image.load("assets/sprites/yellowbird-upflap.png").convert_alpha()
+        icon = pygame.image.load("assets/sprites/icon.png").convert_alpha()
         pygame.display.set_icon(icon)
     except Exception:
         pass
