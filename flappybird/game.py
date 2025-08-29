@@ -44,6 +44,16 @@ class Game:
         gr_w, gr_h = get_ready_original.get_size()
         self.get_ready_sprite = pygame.transform.scale(get_ready_original, (int(gr_w * 1.4), int(gr_h * 1.4)))
 
+        self.panel_score_sprite_original = self._load_image("assets/sprites/panel_score.png", alpha=True)
+        self.panel_score_sprite = pygame.transform.scale(
+            self.panel_score_sprite_original,
+            (int(self.panel_score_sprite_original.get_width() * 2.7),
+             int(self.panel_score_sprite_original.get_height() * 2.7))
+        )
+        self.panel_score_x = (self.screen_width - self.panel_score_sprite.get_width()) // 2
+        self.panel_score_y = (self.screen_height - self.panel_score_sprite.get_height()) // 2
+        self.draw_result = False
+
         self.score = Score()
         self.current_score = 0
         self.best_score = self.load_best_score()
@@ -85,12 +95,6 @@ class Game:
             self.draw_base()
             return 0.0, False
 
-        if self.mode == "human" and self.waiting_to_start:
-            self.draw_get_ready()
-            self.update_base()
-            self.draw_base()
-            return 0.0, False
-
         # Game Over screen
         if self.game_over and self.mode == "human":
             if self.death_time is None:
@@ -108,7 +112,14 @@ class Game:
             self.bird.draw(self.surface)
             self.draw_base()
             self.draw_game_over()
-            self.score.draw(self.surface, self.current_score, self.screen_width // 2, self.screen_height // 3)
+            self.surface.blit(self.panel_score_sprite, ((self.panel_score_x, self.panel_score_y)))
+            self.score.scale(0.6)
+            self.panel_score_pos_x = self.panel_score_x + int(self.panel_score_sprite.get_width() * 0.82)
+            self.panel_score_pos_y = self.panel_score_y + int(self.panel_score_sprite.get_height() * 0.32)
+            self.score.draw(self.surface, self.current_score, self.panel_score_pos_x, self.panel_score_pos_y)
+
+            
+
 
             # Save best score
             if self.current_score > self.best_score:
@@ -119,10 +130,6 @@ class Game:
             if not self.played_die_sound and self.sfx_die:
                 self.sfx_die.play()
                 self.played_die_sound = True
-
-            # After 3s reset
-            if pygame.time.get_ticks() - self.death_time > 3000:
-                self.reset()
 
             return -1.0, True
         
