@@ -4,11 +4,12 @@ class Score:
     def __init__(self):
         #Load sprites form 0 to 9
         self.digit_sprites = []
+        self.scale_factor = 0.9
         for digit in range(10):
             sprite = pygame.image.load(f"assets/sprites/{digit}.png").convert_alpha()
             width = sprite.get_width()
             height = sprite.get_height()
-            scaled_sprite = pygame.transform.scale(sprite, (int(width * 0.9), int(height * 0.9)))
+            scaled_sprite = pygame.transform.scale(sprite, (int(width * self.scale_factor), int(height * self.scale_factor)))
             self.digit_sprites.append(scaled_sprite)
 
     def draw(self, surface, score, center_x, y):
@@ -33,3 +34,18 @@ class Score:
             digit_sprite = self.digit_sprites[digit]
             surface.blit(digit_sprite, (x, y))
             x += digit_sprite.get_width()
+        
+    def scale(self, factor):
+       """
+       Scale the digit sprites by the given factor.
+
+       Args:
+           factor (float): The scaling factor to apply to the digit sprites.
+       """
+       self.scale_factor = factor
+       for i in range(10):
+           sprite = pygame.image.load(f"assets/sprites/{i}.png").convert_alpha()
+           width = sprite.get_width()
+           height = sprite.get_height()
+           scaled_sprite = pygame.transform.scale(sprite, (int(width * self.scale_factor), int(height * self.scale_factor)))
+           self.digit_sprites[i] = scaled_sprite
