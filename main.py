@@ -53,6 +53,10 @@ def run_human():
                         game.sfx_jump.play()
                     except Exception:
                         pass
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and game.game_over:
+                button_rect = game.button_ok.get_rect(topleft=(game.button_ok_x, game.button_ok_y))
+                if button_rect.collidepoint(event.pos):
+                    game.reset()
 
         if not game.waiting_to_start and not game.game_over:
             game.bird.update()
