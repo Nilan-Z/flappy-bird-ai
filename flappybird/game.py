@@ -42,8 +42,8 @@ class Game:
         self.game_over_sprite_original = self._load_image("assets/sprites/gameover.png", alpha=True)
         self.game_over_sprite = pygame.transform.scale(
             self.game_over_sprite_original,
-            (int(self.game_over_sprite_original.get_width() * 1.4),
-             int(self.game_over_sprite_original.get_height() * 1.4))
+            (int(self.game_over_sprite_original.get_width() * 1.3),
+             int(self.game_over_sprite_original.get_height() * 1.3))
         )
         get_ready_original = self._load_image("assets/sprites/message.png", alpha=True)
         gr_w, gr_h = get_ready_original.get_size()
@@ -63,6 +63,16 @@ class Game:
         self.current_score = 0
         self.best_score = self.load_best_score()
 
+        self.button_ok_original = self._load_image("assets/sprites/button_ok.png", alpha=True)
+        self.button_ok = pygame.transform.scale(
+            self.button_ok_original,
+            (int(self.button_ok_original.get_width() * 2),
+             int(self.button_ok_original.get_height() * 2))
+        )
+        self.button_ok_x = self.screen_width // 2 - self.button_ok.get_width() // 2 
+        self.button_ok_y = self.panel_score_y + self.panel_score_sprite.get_height() + 20
+        
+
         self.waiting_to_start = True
         self.death_time = None
         self.game_over = False
@@ -80,6 +90,7 @@ class Game:
         """Reset game objects to start a new round."""
         self.bird.reset()
         self.pipes.clear()
+        self.score.scale(0.9)
         self.current_score = 0
         if self.mode == "ai":
             self.waiting_to_start = False
@@ -122,6 +133,8 @@ class Game:
             self.panel_score_pos_x = self.panel_score_x + int(self.panel_score_sprite.get_width() * 0.82)
             self.panel_score_pos_y = self.panel_score_y + int(self.panel_score_sprite.get_height() * 0.32)
             self.score.draw(self.surface, self.current_score, self.panel_score_pos_x, self.panel_score_pos_y)
+            self.surface.blit(self.button_ok, (self.button_ok_x, 
+                                              self.button_ok_y))
 
             
 
