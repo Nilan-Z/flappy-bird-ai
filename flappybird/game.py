@@ -74,7 +74,6 @@ class Game:
         
 
         self.waiting_to_start = True
-        self.death_time = None
         self.game_over = False
         self.played_die_sound = False
         self.penality = 0
@@ -113,9 +112,6 @@ class Game:
 
         # Game Over screen
         if self.game_over and self.mode == "human":
-            if self.death_time is None:
-                self.death_time = pygame.time.get_ticks()
-
             self.bird.update()
 
             # Stop bird on ground
@@ -133,6 +129,13 @@ class Game:
             self.panel_score_pos_x = self.panel_score_x + int(self.panel_score_sprite.get_width() * 0.86)
             self.panel_score_pos_y = self.panel_score_y + int(self.panel_score_sprite.get_height() * 0.32)
             self.score.draw(self.surface, self.current_score, self.panel_score_pos_x, self.panel_score_pos_y)
+
+            self.medal = self.select_medal(self.current_score)
+            if self.medal:
+                medal_x = self.panel_score_x + int(self.panel_score_sprite.get_width() * 0.125)
+                medal_y = self.panel_score_y + int(self.panel_score_sprite.get_height() * 0.40)
+                self.surface.blit(self.medal, (medal_x, medal_y))
+
             # Save best score
             if self.current_score > self.best_score:
                 self.best_score = self.current_score
@@ -163,14 +166,12 @@ class Game:
         self.draw_base()
         self.score.draw(self.surface, self.current_score, self.screen_width // 2, 30)
 
-        self.death_time = pygame.time.get_ticks()
-
         if self.check_collision():
             if self.sfx_hit:
                 self.sfx_hit.play()
             self.game_over = True
-            self.death_time = pygame.time.get_ticks()
             return -10.0 + self.penality, True
+        
         
         return 0.1, False
 
@@ -253,6 +254,32 @@ class Game:
                 json.dump({"best_score": self.best_score}, f)
         except Exception:
             pass
+    
+    def select_medal(self, score: int) -> Optional[pygame.Surface]:
+        """Return the medal sprite corresponding to the score.
+
+        Args:
+            score (int): The player's score.
+
+        Returns:
+            pygame.Surface or None: The medal sprite, or None if no medal.
+        """
+        medals = [
+            (40, "assets/sprites/medal_platinum.png"),
+            (30, "assets/sprites/medal_gold.png"),
+            (20, "assets/sprites/medal_silver.png"),
+            (10, "assets/sprites/medal_bronze.png"),
+        ]
+
+        for threshold, path in medals:
+            if score >= threshold:
+                medal = self._load_image(path, alpha=True)
+                scale_factor = 0.18
+                width = int(self.panel_score_sprite.get_width() * scale_factor)
+                height = int(medal.get_height() * (width / medal.get_width()))
+                return pygame.transform.scale(medal, (width, height))
+
+        return None
 
     @staticmethod
     def _load_image(path: str, alpha: bool = True) -> pygame.Surface:
