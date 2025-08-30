@@ -130,19 +130,17 @@ class Game:
             self.draw_game_over()
             self.surface.blit(self.panel_score_sprite, ((self.panel_score_x, self.panel_score_y)))
             self.score.scale(0.6)
-            self.panel_score_pos_x = self.panel_score_x + int(self.panel_score_sprite.get_width() * 0.82)
+            self.panel_score_pos_x = self.panel_score_x + int(self.panel_score_sprite.get_width() * 0.86)
             self.panel_score_pos_y = self.panel_score_y + int(self.panel_score_sprite.get_height() * 0.32)
             self.score.draw(self.surface, self.current_score, self.panel_score_pos_x, self.panel_score_pos_y)
-            self.surface.blit(self.button_ok, (self.button_ok_x, 
-                                              self.button_ok_y))
-
-            
-
-
             # Save best score
             if self.current_score > self.best_score:
                 self.best_score = self.current_score
                 self.save_best_score()
+
+            self.score.draw(self.surface, self.best_score, self.panel_score_pos_x, self.panel_score_pos_y + int(self.panel_score_sprite.get_height() * 0.36))
+            self.surface.blit(self.button_ok, (self.button_ok_x, 
+                                              self.button_ok_y))
 
             # Play die sound once
             if not self.played_die_sound and self.sfx_die:
