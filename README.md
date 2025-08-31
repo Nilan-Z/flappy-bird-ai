@@ -154,7 +154,7 @@ The agent explores with an ε-greedy strategy, stores transitions in replay memo
 
 Gameplay in *human mode* (manual play):
 
-![Demo](assets/demo.gif)
+<img src="assets/demo.gif" alt="Demo" width="288" />
 
 AI training log:
 
