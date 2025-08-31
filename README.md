@@ -47,7 +47,7 @@ python main.py ai --train 5000
 Clone the repository:
 
 ```bash
-git clone https://github.com/YourUsername/flappy-bird-ai.git
+git clone https://github.com/Nilan-Z/flappy-bird-ai.git
 cd flappy-bird-ai
 ```
 
@@ -154,7 +154,7 @@ The agent explores with an ε-greedy strategy, stores transitions in replay memo
 
 AI training log:
 
-    Episode 1/1000 | Score: 120 | Reward: 1453.00 | Epsilon: 0.95 | Steps: 48
+    Episode 1/1000 | Score: 120 | Reward: 1453.00 | Epsilon: 0.95 | Steps: 14629
 
 Adjust parameters in config.yaml to improve performance.
 
