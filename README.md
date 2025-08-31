@@ -152,6 +152,10 @@ The agent explores with an ε-greedy strategy, stores transitions in replay memo
 
 ## 🧾 Example
 
+Gameplay in *human mode* (manual play):
+
+![Demo](assets/demo.gif)
+
 AI training log:
 
     Episode 1/1000 | Score: 120 | Reward: 1453.00 | Epsilon: 0.95 | Steps: 14629
