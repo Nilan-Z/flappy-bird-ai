@@ -62,6 +62,7 @@ class Game:
         self.score = Score()
         self.current_score = 0
         self.best_score = self.load_best_score()
+        self.new_best_score = False
 
         self.button_ok_original = self._load_image("assets/sprites/button_ok.png", alpha=True)
         self.button_ok = pygame.transform.scale(
@@ -71,7 +72,13 @@ class Game:
         )
         self.button_ok_x = self.screen_width // 2 - self.button_ok.get_width() // 2 
         self.button_ok_y = self.panel_score_y + self.panel_score_sprite.get_height() + 20
-        
+
+        self.label_new_original = self._load_image("assets/sprites/label_new.png", alpha=True)
+        self.label_new = pygame.transform.scale(
+            self.label_new_original,
+            (int(self.label_new_original.get_width() * 2),
+             int(self.label_new_original.get_height() * 2))
+        )
 
         self.waiting_to_start = True
         self.game_over = False
@@ -98,6 +105,8 @@ class Game:
         self.game_over = False
         self.played_die_sound = False
         self.pipe_spawn_timer = 0
+        self.new_best_score = False
+        self.medal = None
 
     def update(self) -> Tuple[float, bool]:
         """Run one frame of game logic and rendering."""
@@ -124,12 +133,13 @@ class Game:
             self.bird.draw(self.surface)
             self.draw_base()
             self.draw_game_over()
+
             self.surface.blit(self.panel_score_sprite, ((self.panel_score_x, self.panel_score_y)))
             self.score.scale(0.6)
             self.panel_score_pos_x = self.panel_score_x + int(self.panel_score_sprite.get_width() * 0.86)
             self.panel_score_pos_y = self.panel_score_y + int(self.panel_score_sprite.get_height() * 0.32)
             self.score.draw(self.surface, self.current_score, self.panel_score_pos_x, self.panel_score_pos_y)
-
+        
             self.medal = self.select_medal(self.current_score)
             if self.medal:
                 medal_x = self.panel_score_x + int(self.panel_score_sprite.get_width() * 0.125)
@@ -139,9 +149,12 @@ class Game:
             # Save best score
             if self.current_score > self.best_score:
                 self.best_score = self.current_score
+                self.new_best_score = True
                 self.save_best_score()
 
             self.score.draw(self.surface, self.best_score, self.panel_score_pos_x, self.panel_score_pos_y + int(self.panel_score_sprite.get_height() * 0.36))
+            if self.new_best_score:
+                self.surface.blit(self.label_new, (self.panel_score_pos_x - 70, self.panel_score_pos_y + int(self.panel_score_sprite.get_height() * 0.218)))
             self.surface.blit(self.button_ok, (self.button_ok_x, 
                                               self.button_ok_y))
 
