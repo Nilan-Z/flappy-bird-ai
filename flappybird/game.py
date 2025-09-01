@@ -144,7 +144,7 @@ class Game:
             if self.medal:
                 medal_x = self.panel_score_x + int(self.panel_score_sprite.get_width() * 0.125)
                 medal_y = self.panel_score_y + int(self.panel_score_sprite.get_height() * 0.40)
-                self.surface.blit(self.medal, (medal_x, medal_y))
+                self.draw_medal(medal_x, medal_y)
 
             # Save best score
             if self.current_score > self.best_score:
@@ -295,6 +295,16 @@ class Game:
                 return pygame.transform.scale(medal, (width, height))
 
         return None
+    
+    def draw_medal(self, x: int, y: int) -> None:
+        """Draw the selected medal at the specified position.
+
+        Args:
+            x (int): The x-coordinate to draw the medal.
+            y (int): The y-coordinate to draw the medal.
+        """
+        if self.medal:
+            self.surface.blit(self.medal, (x, y))
 
     @staticmethod
     def _load_image(path: str, alpha: bool = True) -> pygame.Surface:
