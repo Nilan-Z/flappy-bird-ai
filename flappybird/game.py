@@ -157,8 +157,7 @@ class Game:
                 self.panel_new_x = self.panel_score_x - 70
                 self.panel_new_y = self.panel_score_y + int(self.panel_score_sprite.get_height() * 0.218)
                 self.draw_label_new(self.panel_new_x, self.panel_new_y)
-            self.surface.blit(self.button_ok, (self.button_ok_x, 
-                                              self.button_ok_y))
+                self.draw_ok_button(self.button_ok_x, self.button_ok_y)
 
             # Play die sound once
             if not self.played_die_sound and self.sfx_die:
@@ -206,31 +205,11 @@ class Game:
         self.pipes = [p for p in self.pipes if p.x + p.width > 0]
         return self.reward
 
-    def draw_pipes(self) -> None:
-        """Draw all pipes."""
-        for pipe in self.pipes:
-            pipe.draw(self.surface)
-
     def update_base(self) -> None:
         """Scroll base texture horizontally."""
         self.base_x -= self.base_scroll_speed
         if self.base_x <= -self.base_width:
             self.base_x = 0
-
-    def draw_base(self) -> None:
-        """Tile the base sprite across the bottom."""
-        for i in range((self.screen_width // self.base_width) + 2):
-            self.surface.blit(self.base_sprite, (self.base_x + i * self.base_width, self.base_y))
-
-    def draw_game_over(self) -> None:
-        """Draw the Game Over banner centered."""
-        x = (self.screen_width - self.game_over_sprite.get_width()) // 2
-        y = self.screen_height // 5
-        self.surface.blit(self.game_over_sprite, (x, y))
-
-    def draw_label_new(self, x: int, y: int) -> None:
-        """Draw the 'New' label at the specified position."""
-        self.surface.blit(self.label_new, (x, y))
 
     def check_collision(self) -> bool:
         """Return True if bird collides with ground, ceiling, or pipes."""
@@ -248,12 +227,6 @@ class Game:
             if bird_rect.colliderect(top_rect) or bird_rect.colliderect(bottom_rect):
                 return True
         return False
-
-    def draw_get_ready(self) -> None:
-        """Draw the 'Get Ready' prompt centered near the top."""
-        x = (self.screen_width - self.get_ready_sprite.get_width()) // 2
-        y = self.screen_height // 8
-        self.surface.blit(self.get_ready_sprite, (x, y))
 
     def spawn_pipe(self) -> None:
         """Create a new pipe at right edge."""
@@ -302,6 +275,32 @@ class Game:
 
         return None
     
+    def draw_base(self) -> None:
+        """Tile the base sprite across the bottom."""
+        for i in range((self.screen_width // self.base_width) + 2):
+            self.surface.blit(self.base_sprite, (self.base_x + i * self.base_width, self.base_y))
+
+    def draw_game_over(self) -> None:
+        """Draw the Game Over banner centered."""
+        x = (self.screen_width - self.game_over_sprite.get_width()) // 2
+        y = self.screen_height // 5
+        self.surface.blit(self.game_over_sprite, (x, y))
+
+    def draw_label_new(self, x: int, y: int) -> None:
+        """Draw the 'New' label at the specified position."""
+        self.surface.blit(self.label_new, (x, y))
+    
+    def draw_pipes(self) -> None:
+        """Draw all pipes."""
+        for pipe in self.pipes:
+            pipe.draw(self.surface)
+    
+    def draw_get_ready(self) -> None:
+        """Draw the 'Get Ready' prompt centered near the top."""
+        x = (self.screen_width - self.get_ready_sprite.get_width()) // 2
+        y = self.screen_height // 8
+        self.surface.blit(self.get_ready_sprite, (x, y))
+    
     def draw_medal(self, x: int, y: int) -> None:
         """Draw the selected medal at the specified position.
 
@@ -320,6 +319,15 @@ class Game:
             y (int): The y-coordinate to draw the panel.
         """
         self.surface.blit(self.panel_score_sprite, (x, y))
+
+    def draw_ok_button(self, x: int, y: int) -> None:
+        """Draw the OK button at the specified position.
+
+        Args:
+            x (int): The x-coordinate to draw the button.
+            y (int): The y-coordinate to draw the button.
+        """
+        self.surface.blit(self.button_ok, (x, y))
 
     @staticmethod
     def _load_image(path: str, alpha: bool = True) -> pygame.Surface:
