@@ -28,7 +28,7 @@ class Game:
         self.bird = Bird(mode)
         self.pipes = []
         self.pipe_spawn_timer = 0
-
+        
         self.base_sprite = self._load_image("assets/sprites/base.png", alpha=True)
         self.base_scroll_speed = 3
         self.base_width = self.base_sprite.get_width()
@@ -173,11 +173,13 @@ class Game:
 
         self.bird.update()
         self.update_pipes()
-        self.draw_pipes()
-        self.bird.draw(self.surface)
         self.update_base()
-        self.draw_base()
-        self.score.draw(self.surface, self.current_score, self.screen_width // 2, 30)
+
+        if not self.headless:
+            self.draw_pipes()
+            self.bird.draw(self.surface)
+            self.draw_base()
+            self.score.draw(self.surface, self.current_score, self.screen_width // 2, 30)
 
         if self.check_collision():
             if self.sfx_hit:
