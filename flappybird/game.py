@@ -154,7 +154,9 @@ class Game:
 
             self.score.draw(self.surface, self.best_score, self.panel_score_pos_x, self.panel_score_pos_y + int(self.panel_score_sprite.get_height() * 0.36))
             if self.new_best_score:
-                self.surface.blit(self.label_new, (self.panel_score_pos_x - 70, self.panel_score_pos_y + int(self.panel_score_sprite.get_height() * 0.218)))
+                self.panel_new_x = self.panel_score_x - 70
+                self.panel_new_y = self.panel_score_y + int(self.panel_score_sprite.get_height() * 0.218)
+                self.draw_label_new(self.panel_new_x, self.panel_new_y)
             self.surface.blit(self.button_ok, (self.button_ok_x, 
                                               self.button_ok_y))
 
@@ -225,6 +227,10 @@ class Game:
         x = (self.screen_width - self.game_over_sprite.get_width()) // 2
         y = self.screen_height // 5
         self.surface.blit(self.game_over_sprite, (x, y))
+
+    def draw_label_new(self, x: int, y: int) -> None:
+        """Draw the 'New' label at the specified position."""
+        self.surface.blit(self.label_new, (x, y))
 
     def check_collision(self) -> bool:
         """Return True if bird collides with ground, ceiling, or pipes."""
