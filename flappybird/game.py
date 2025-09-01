@@ -134,7 +134,7 @@ class Game:
             self.draw_base()
             self.draw_game_over()
 
-            self.surface.blit(self.panel_score_sprite, ((self.panel_score_x, self.panel_score_y)))
+            self.draw_panel_score(self.panel_score_x, self.panel_score_y)
             self.score.scale(0.6)
             self.panel_score_pos_x = self.panel_score_x + int(self.panel_score_sprite.get_width() * 0.86)
             self.panel_score_pos_y = self.panel_score_y + int(self.panel_score_sprite.get_height() * 0.32)
@@ -305,6 +305,15 @@ class Game:
         """
         if self.medal:
             self.surface.blit(self.medal, (x, y))
+
+    def draw_panel_score(self, x: int, y: int) -> None:
+        """Draw the score panel at the specified position.
+
+        Args:
+            x (int): The x-coordinate to draw the panel.
+            y (int): The y-coordinate to draw the panel.
+        """
+        self.surface.blit(self.panel_score_sprite, (x, y))
 
     @staticmethod
     def _load_image(path: str, alpha: bool = True) -> pygame.Surface:
