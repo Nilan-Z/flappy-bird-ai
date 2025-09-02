@@ -96,6 +96,5 @@ class TrainAgent:
         print(f"[{timestamp}] {message}")
 
 if __name__ == "__main__":
-    # Exemple d'entraînement sans affichage
     trainer = TrainAgent(headless=True)
     trainer.train(episodes=500)
