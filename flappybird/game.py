@@ -157,7 +157,8 @@ class Game:
                 self.panel_new_x = self.panel_score_x - 70
                 self.panel_new_y = self.panel_score_y + int(self.panel_score_sprite.get_height() * 0.218)
                 self.draw_label_new(self.panel_new_x, self.panel_new_y)
-                self.draw_ok_button(self.button_ok_x, self.button_ok_y)
+            
+            self.draw_ok_button(self.button_ok_x, self.button_ok_y)
 
             # Play die sound once
             if not self.played_die_sound and self.sfx_die and not self.headless:
