@@ -190,64 +190,6 @@ class Game:
         
         
         return 0.1, False
-
-    def update_pipes(self) -> float:
-        """Move pipes left, mark passed pipes, and remove off-screen ones."""
-        self.reward = 0
-        for pipe in self.pipes:
-            pipe.update()
-            if not pipe.passed and pipe.x + (pipe.width / 4) < self.bird.x:
-                pipe.passed = True
-                self.current_score += 1
-                self.reward = 10
-                if self.sfx_point:
-                    self.sfx_point.play()
-        self.pipes = [p for p in self.pipes if p.x + p.width > 0]
-        return self.reward
-
-    def update_base(self) -> None:
-        """Scroll base texture horizontally."""
-        self.base_x -= self.base_scroll_speed
-        if self.base_x <= -self.base_width:
-            self.base_x = 0
-
-    def check_collision(self) -> bool:
-        """Return True if bird collides with ground, ceiling, or pipes."""
-        self.penality = 0
-        bird_rect = self.bird.get_rect()
-        if bird_rect.bottom >= self.base_y:
-            self.penality = -100
-            self.bird.y = self.base_y - bird_rect.height
-            return True
-        if bird_rect.top <= 0:
-            self.penality = -100
-            return True
-        for pipe in self.pipes:
-            top_rect, bottom_rect = pipe.get_rects()
-            if bird_rect.colliderect(top_rect) or bird_rect.colliderect(bottom_rect):
-                return True
-        return False
-
-    def spawn_pipe(self) -> None:
-        """Create a new pipe at right edge."""
-        self.pipes.append(Pipe(x=self.screen_width))
-
-    def load_best_score(self) -> int:
-        """Load best score from disk safely."""
-        try:
-            with open("flappybird/score.json", "r") as f:
-                data = json.load(f)
-                return data.get("best_score", 0)
-        except Exception:
-            return 0
-
-    def save_best_score(self) -> None:
-        """Save best score to disk safely."""
-        try:
-            with open("flappybird/score.json", "w") as f:
-                json.dump({"best_score": self.best_score}, f)
-        except Exception:
-            pass
     
     def select_medal(self, score: int) -> Optional[pygame.Surface]:
         """Return the medal sprite corresponding to the score.
@@ -328,6 +270,64 @@ class Game:
             y (int): The y-coordinate to draw the button.
         """
         self.surface.blit(self.button_ok, (x, y))
+
+    def update_pipes(self) -> float:
+        """Move pipes left, mark passed pipes, and remove off-screen ones."""
+        self.reward = 0
+        for pipe in self.pipes:
+            pipe.update()
+            if not pipe.passed and pipe.x + (pipe.width / 4) < self.bird.x:
+                pipe.passed = True
+                self.current_score += 1
+                self.reward = 10
+                if self.sfx_point:
+                    self.sfx_point.play()
+        self.pipes = [p for p in self.pipes if p.x + p.width > 0]
+        return self.reward
+
+    def update_base(self) -> None:
+        """Scroll base texture horizontally."""
+        self.base_x -= self.base_scroll_speed
+        if self.base_x <= -self.base_width:
+            self.base_x = 0
+
+    def check_collision(self) -> bool:
+        """Return True if bird collides with ground, ceiling, or pipes."""
+        self.penality = 0
+        bird_rect = self.bird.get_rect()
+        if bird_rect.bottom >= self.base_y:
+            self.penality = -100
+            self.bird.y = self.base_y - bird_rect.height
+            return True
+        if bird_rect.top <= 0:
+            self.penality = -100
+            return True
+        for pipe in self.pipes:
+            top_rect, bottom_rect = pipe.get_rects()
+            if bird_rect.colliderect(top_rect) or bird_rect.colliderect(bottom_rect):
+                return True
+        return False
+
+    def spawn_pipe(self) -> None:
+        """Create a new pipe at right edge."""
+        self.pipes.append(Pipe(x=self.screen_width))
+
+    def load_best_score(self) -> int:
+        """Load best score from disk safely."""
+        try:
+            with open("flappybird/score.json", "r") as f:
+                data = json.load(f)
+                return data.get("best_score", 0)
+        except Exception:
+            return 0
+
+    def save_best_score(self) -> None:
+        """Save best score to disk safely."""
+        try:
+            with open("flappybird/score.json", "w") as f:
+                json.dump({"best_score": self.best_score}, f)
+        except Exception:
+            pass
 
     @staticmethod
     def _load_image(path: str, alpha: bool = True) -> pygame.Surface:
