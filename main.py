@@ -57,7 +57,7 @@ def run_human():
                 button_rect = game.button_ok.get_rect(topleft=(game.button_ok_x, game.button_ok_y))
                 if button_rect.collidepoint(event.pos):
                     game.sfx_swoosh.play()
-                    game.rest()
+                    game.reset()
 
         if not game.waiting_to_start and not game.game_over:
             game.bird.update()
