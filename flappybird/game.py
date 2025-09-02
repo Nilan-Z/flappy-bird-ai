@@ -160,7 +160,7 @@ class Game:
                 self.draw_ok_button(self.button_ok_x, self.button_ok_y)
 
             # Play die sound once
-            if not self.played_die_sound and self.sfx_die:
+            if not self.played_die_sound and self.sfx_die and not self.headless:
                 self.sfx_die.play()
                 self.played_die_sound = True
 
@@ -183,7 +183,7 @@ class Game:
             self.score.draw(self.surface, self.current_score, self.screen_width // 2, 30)
 
         if self.check_collision():
-            if self.sfx_hit:
+            if self.sfx_hit and not self.headless:
                 self.sfx_hit.play()
             self.game_over = True
             return -10.0 + self.penality, True
@@ -280,7 +280,7 @@ class Game:
                 pipe.passed = True
                 self.current_score += 1
                 self.reward = 10
-                if self.sfx_point:
+                if self.sfx_point and not self.headless:
                     self.sfx_point.play()
         self.pipes = [p for p in self.pipes if p.x + p.width > 0]
         return self.reward
