@@ -49,7 +49,7 @@ class Game:
         gr_w, gr_h = get_ready_original.get_size()
         self.get_ready_sprite = pygame.transform.scale(get_ready_original, (int(gr_w * 1.4), int(gr_h * 1.4)))
 
-        self.panel_score_sprite_original = self._load_image("assets/sprites/panel_score.png", alpha=True)
+        self.panel_score_sprite_original = self._load_image("assets/sprites/panel-score.png", alpha=True)
         self.panel_score_sprite = pygame.transform.scale(
             self.panel_score_sprite_original,
             (int(self.panel_score_sprite_original.get_width() * 2.7),
@@ -64,7 +64,7 @@ class Game:
         self.best_score = self.load_best_score()
         self.new_best_score = False
 
-        self.button_ok_original = self._load_image("assets/sprites/button_ok.png", alpha=True)
+        self.button_ok_original = self._load_image("assets/sprites/button-ok.png", alpha=True)
         self.button_ok = pygame.transform.scale(
             self.button_ok_original,
             (int(self.button_ok_original.get_width() * 2),
@@ -73,7 +73,7 @@ class Game:
         self.button_ok_x = self.screen_width // 2 - self.button_ok.get_width() // 2 
         self.button_ok_y = self.panel_score_y + self.panel_score_sprite.get_height() + 20
 
-        self.label_new_original = self._load_image("assets/sprites/label_new.png", alpha=True)
+        self.label_new_original = self._load_image("assets/sprites/label-new.png", alpha=True)
         self.label_new = pygame.transform.scale(
             self.label_new_original,
             (int(self.label_new_original.get_width() * 2),
