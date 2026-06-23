@@ -27,6 +27,7 @@ This project uses TensorFlow and a custom Pygame environment.
 - Headless mode for accelerated training without graphics
 - Manual mode to play the game yourself
 - Configurable training and game parameters via `config.yaml`
+- Robust project-path handling so assets and config load correctly from any working directory
 - Lightweight, minimal, and easily extendable codebase
 
 ---
