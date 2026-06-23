@@ -1,18 +1,18 @@
 import pygame
 import random
-import yaml
 from typing import Tuple
+
+from flappybird.path_utils import load_yaml_config, resolve_project_path
 
 
 class Pipe:
     def __init__(self, x: int):
         # Load configuration
-        with open("config.yaml", "r") as f:
-            cfg = yaml.safe_load(f)
+        cfg = load_yaml_config()
 
         # Load and scale pipe sprite
         self.original_sprite: pygame.Surface = pygame.image.load(
-            "assets/sprites/pipe-green.png"
+            str(resolve_project_path("assets/sprites/pipe-green.png"))
         ).convert_alpha()
         self.sprite: pygame.Surface = pygame.transform.scale(
             self.original_sprite,

@@ -3,6 +3,7 @@ import json
 from flappybird.bird import Bird
 from flappybird.pipe import Pipe
 from flappybird.score import Score
+from flappybird.path_utils import resolve_project_path
 from typing import Optional, Tuple
 
 
@@ -315,8 +316,9 @@ class Game:
 
     def load_best_score(self) -> int:
         """Load best score from disk safely."""
+        score_path = resolve_project_path("flappybird/score.json")
         try:
-            with open("flappybird/score.json", "r") as f:
+            with score_path.open("r", encoding="utf-8") as f:
                 data = json.load(f)
                 return data.get("best_score", 0)
         except Exception:
@@ -324,8 +326,9 @@ class Game:
 
     def save_best_score(self) -> None:
         """Save best score to disk safely."""
+        score_path = resolve_project_path("flappybird/score.json")
         try:
-            with open("flappybird/score.json", "w") as f:
+            with score_path.open("w", encoding="utf-8") as f:
                 json.dump({"best_score": self.best_score}, f)
         except Exception:
             pass
@@ -334,7 +337,8 @@ class Game:
     def _load_image(path: str, alpha: bool = True) -> pygame.Surface:
         """Load an image safely; fallback to 1x1 surface if missing."""
         try:
-            img = pygame.image.load(path)
+            resolved_path = resolve_project_path(path) if not str(path).startswith(("/", "\\")) else path
+            img = pygame.image.load(str(resolved_path))
             return img.convert_alpha() if alpha else img.convert()
         except Exception:
             return pygame.Surface((1, 1), flags=pygame.SRCALPHA if alpha else 0)
@@ -343,6 +347,7 @@ class Game:
     def _load_sound(path: str) -> Optional[pygame.mixer.Sound]:
         """Load a sound safely; return None if missing."""
         try:
-            return pygame.mixer.Sound(path)
+            resolved_path = resolve_project_path(path) if not str(path).startswith(("/", "\\")) else path
+            return pygame.mixer.Sound(str(resolved_path))
         except Exception:
             return None

@@ -2,6 +2,8 @@ import pygame
 import random
 from typing import List
 
+from flappybird.path_utils import resolve_project_path
+
 class Bird:
     def __init__(self, mode: str):
         self.mode: str = mode
@@ -25,7 +27,8 @@ class Bird:
         # Load and convert sprites
         base_sprites: List[pygame.Surface] = []
         for path in sprite_paths[self.sprites_color]:
-            img = pygame.image.load(path)
+            resolved_path = resolve_project_path(path)
+            img = pygame.image.load(str(resolved_path))
             img = img.convert_alpha() if mode == "human" else img.convert()
             base_sprites.append(img)
 

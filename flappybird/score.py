@@ -1,12 +1,15 @@
 import pygame
 
+from flappybird.path_utils import resolve_project_path
+
+
 class Score:
     def __init__(self):
         #Load sprites form 0 to 9
         self.digit_sprites = []
         self.scale_factor = 0.9
         for digit in range(10):
-            sprite = pygame.image.load(f"assets/sprites/{digit}.png").convert_alpha()
+            sprite = pygame.image.load(str(resolve_project_path(f"assets/sprites/{digit}.png"))).convert_alpha()
             width = sprite.get_width()
             height = sprite.get_height()
             scaled_sprite = pygame.transform.scale(sprite, (int(width * self.scale_factor), int(height * self.scale_factor)))
@@ -44,7 +47,7 @@ class Score:
        """
        self.scale_factor = factor
        for i in range(10):
-           sprite = pygame.image.load(f"assets/sprites/{i}.png").convert_alpha()
+           sprite = pygame.image.load(str(resolve_project_path(f"assets/sprites/{i}.png"))).convert_alpha()
            width = sprite.get_width()
            height = sprite.get_height()
            scaled_sprite = pygame.transform.scale(sprite, (int(width * self.scale_factor), int(height * self.scale_factor)))
