@@ -1,9 +1,9 @@
 import sys
 import os
 import argparse
-import yaml
 import pygame
 from flappybird.game import Game
+from flappybird.path_utils import load_yaml_config, resolve_project_path
 from ai.flappybird_env import FlappyBirdEnv
 from ai.train import TrainAgent
 from ai.dqn_agent import DQNAgent
@@ -13,8 +13,7 @@ if "--headless" in sys.argv:
     os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 
 # Load configuration
-with open("config.yaml", "r") as f:
-    cfg = yaml.safe_load(f)
+cfg = load_yaml_config()
 
 SCREEN_WIDTH = int(cfg.get("screen_width", 423))
 SCREEN_HEIGHT = int(cfg.get("screen_height", 590))
@@ -27,7 +26,7 @@ def run_human():
     pygame.display.set_caption("Flappy Bird - Human Mode")
 
     try:
-        icon = pygame.image.load("assets/sprites/icon.png").convert_alpha()
+        icon = pygame.image.load(str(resolve_project_path("assets/sprites/icon.png"))).convert_alpha()
         pygame.display.set_icon(icon)
     except Exception:
         pass

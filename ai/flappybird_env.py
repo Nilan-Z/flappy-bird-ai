@@ -1,20 +1,12 @@
 import os
-import yaml
 import pygame
 from typing import List, Tuple, Dict, Any
 from flappybird.game import Game
+from flappybird.path_utils import load_yaml_config
 
 
 # Load config only once at module level (avoid re-reading config.yaml every instance)
-def _load_config(path: str = "config.yaml") -> Dict[str, Any]:
-    try:
-        with open(path, "r") as f:
-            return yaml.safe_load(f) or {}
-    except FileNotFoundError:
-        return {}
-
-
-CONFIG = _load_config()
+CONFIG = load_yaml_config()
 
 
 class FlappyBirdEnv:

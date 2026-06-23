@@ -1,5 +1,4 @@
 import os
-import yaml
 from collections import deque
 from typing import Tuple
 
@@ -9,6 +8,8 @@ from tensorflow.keras import layers, Sequential
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import Huber
 import logging
+
+from flappybird.path_utils import load_yaml_config, resolve_project_path
 
 # Configure logger
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s')
@@ -31,12 +32,11 @@ class DQNAgent:
         """
         self.state_size = state_size
         self.action_size = action_size
-        self.model_path = model_path
+        self.model_path = str(resolve_project_path(model_path)) if not os.path.isabs(model_path) else model_path
         self.training = training
 
         # Load configuration
-        with open("config.yaml", "r") as f:
-            cfg = yaml.safe_load(f)
+        cfg = load_yaml_config()
 
         # Memory
         self.memory_size = int(cfg.get("memory_size", 20000))

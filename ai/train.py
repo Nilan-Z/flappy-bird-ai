@@ -1,15 +1,15 @@
+import os
 import numpy as np
 import pygame
-import yaml
 from ai.flappybird_env import FlappyBirdEnv
 from ai.dqn_agent import DQNAgent
+from flappybird.path_utils import load_yaml_config
 from datetime import datetime
 
 class TrainAgent:
     def __init__(self, headless: bool = False):
         # Load configuration
-        with open("config.yaml", "r") as f:
-            cfg = yaml.safe_load(f)
+        cfg = load_yaml_config()
         self.save_every_n_episodes = int(cfg.get("save_every_n_episodes", 50))
         self.headless = headless
 
@@ -91,7 +91,10 @@ class TrainAgent:
     def log_message(self, message: str, log_file: str = "training.log"):
         # Append message to log file with timestamp and print to console
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open(log_file, "a") as f:
+        log_directory = os.path.dirname(log_file)
+        if log_directory:
+            os.makedirs(log_directory, exist_ok=True)
+        with open(log_file, "a", encoding="utf-8") as f:
             f.write(f"[{timestamp}] {message}\n")
         print(f"[{timestamp}] {message}")
 
